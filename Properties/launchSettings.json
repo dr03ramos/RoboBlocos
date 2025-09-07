@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RoboBlocos (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "RoboBlocos (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
