@@ -22,28 +22,25 @@ namespace RoboBlocos
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainWindow : Window
+    public sealed partial class IDE : Window
     {
-        public MainWindow()
+        public IDE()
         {
             InitializeComponent();
 
             this.ExtendsContentIntoTitleBar = true;
-
-            OverlappedPresenter presenter = OverlappedPresenter.Create();
-            presenter.PreferredMinimumWidth = 1000;
-            presenter.PreferredMinimumHeight = 400;
-
-            AppWindow.SetPresenter(presenter);
-
         }
-
-        private void NewProgramButton_Click(object sender, RoutedEventArgs e)
+        private async void NavViewTitleBar_BackRequested(TitleBar sender, object args)
         {
-            // Close the main window and open the IDE window
-            var ide = new IDE();
-            ide.Activate();
-            this.Close();
+            ContentDialog dialog = new ContentDialog();
+
+            dialog.XamlRoot = this.Content.XamlRoot;
+            dialog.Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
+            dialog.Title = "Clicou para voltar";
+            dialog.PrimaryButtonText = "OK";
+            dialog.DefaultButton = ContentDialogButton.Primary;
+
+            var result = await dialog.ShowAsync();
         }
     }
 }
