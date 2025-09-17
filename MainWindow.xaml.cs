@@ -1,21 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using RoboBlocos.Models;
+using RoboBlocos.Utilities;
 
 namespace RoboBlocos
 {
@@ -38,10 +24,13 @@ namespace RoboBlocos
 
         }
 
-        private void NewProgramButton_Click(object sender, RoutedEventArgs e)
+        private async void NewProgramButton_Click(object sender, RoutedEventArgs e)
         {
+            // Create a new project with default settings
+            ProjectSettings projectSettings = ProjectUtilities.CreateDefaultProject(ProjectUtilities.GetUniqueProjectName("Novo Programa"));
+
             // Close the main window and open the IDE window
-            var ide = new IDE();
+            var ide = new IDE(projectSettings);
             ide.Activate();
             this.Close();
         }

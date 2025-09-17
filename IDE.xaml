@@ -35,7 +35,7 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                <TextBlock VerticalAlignment="Center" FontSize="16" FontWeight="SemiBold">Programa 1</TextBlock>
+                <TextBlock x:Name="txtProgramName" VerticalAlignment="Center" FontSize="16" FontWeight="SemiBold">Programa 1</TextBlock>
             </StackPanel>
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
@@ -68,7 +68,6 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 
-                <!-- Replaced ListView with StackPanel and anchored it to the bottom so log entries align to the bottom -->
                 <StackPanel Grid.Row="0" VerticalAlignment="Bottom" Spacing="8">
                     <controls:InfoBar
                         IsOpen="True"

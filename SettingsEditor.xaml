@@ -18,6 +18,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TitleBar x:Name="IDETitleBar"
@@ -28,12 +29,11 @@
         <TextBlock Grid.Row="1" Text="Configurações" FontSize="28" FontWeight="SemiBold" Margin="24,24,24,36" />
 
         <ScrollViewer Grid.Row="2" Margin="24,0,24,24">
-            <StackPanel Orientation="Vertical" Spacing="36
-                        ">
+            <StackPanel Orientation="Vertical" Spacing="36">
                 <StackPanel Orientation="Vertical" Spacing="12">
                     <TextBlock Text="Definições do robô" FontSize="16" FontWeight="SemiBold" />
 
-                    <ComboBox Header="Modelo" Width="160" SelectedIndex="0">
+                    <ComboBox x:Name="cmbModel" Header="Modelo" Width="160" SelectedIndex="0">
                         <ComboBoxItem>RCX2</ComboBoxItem>
                     </ComboBox>
 
@@ -41,24 +41,30 @@
                         <RadioButton x:Name="rbRecommended" GroupName="FirmwareOption" IsChecked="True" Content="Usar recomendada (firm0332.lgo)" />
                         <RadioButton x:Name="rbChooseFile" GroupName="FirmwareOption" Content="Escolher arquivo" />
                     </RadioButtons>
-                    <TextBox IsEnabled="{Binding IsChecked, ElementName=rbChooseFile}" Text="C:\\Users\\..." Width="220" Margin="28,0,0,0" HorizontalAlignment="Left" />
+                    <TextBox x:Name="txtCustomFirmware" IsEnabled="{Binding IsChecked, ElementName=rbChooseFile}" Text="C:\\Users\\..." Width="220" Margin="28,0,0,0" HorizontalAlignment="Left" />
                 </StackPanel>
                 
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Spacing="12">
                     <TextBlock Text="Conexão" FontSize="16" FontWeight="SemiBold" />
 
-                    <TextBox Header="Porta serial" Width="200" Text="COM1" />
+                    <TextBox x:Name="txtSerialPort" Header="Porta serial" Width="200" Text="COM1" />
 
-                    <NumberBox Header="Tentativas de conexão" Value="5" Minimum="0" Maximum="99" Width="150" HorizontalAlignment="Left"/>
+                    <NumberBox x:Name="numConnectionAttempts" Header="Tentativas de conexão" Value="5" Minimum="0" Maximum="99" Width="150" HorizontalAlignment="Left"/>
                 </StackPanel>
                 
                 <StackPanel Orientation="Vertical" Spacing="12">
                     <TextBlock Text="Registros" FontSize="16" FontWeight="SemiBold" />
 
-                    <CheckBox Content="Download de firmware" IsChecked="True" />
-                    <CheckBox Content="Erros de compilação" />
+                    <CheckBox x:Name="chkLogFirmware" Content="Download de firmware" IsChecked="True" />
+                    <CheckBox x:Name="chkLogErrors" Content="Erros de compilação" />
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
+
+        <Border Grid.Row="3" Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="24,16">
+                <Button x:Name="btnSave" Content="Salvar" Click="SaveButton_Click" Style="{ThemeResource AccentButtonStyle}" MinWidth="100" />
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>
