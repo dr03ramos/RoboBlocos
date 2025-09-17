@@ -42,5 +42,11 @@ namespace RoboBlocos
 
             var result = await dialog.ShowAsync();
         }
+
+        private void RobotSettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            var settingseditor = new SettingsEditor();
+            settingseditor.Activate();
+        }
     }
 }

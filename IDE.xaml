@@ -114,7 +114,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Button ToolTipService.ToolTip="Configurações específicas do robô" HorizontalAlignment="Right">
+                    <Button x:Name="RobotSettingsButton" ToolTipService.ToolTip="Configurações específicas do robô" HorizontalAlignment="Right" Click="RobotSettingsButton_Click">
                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <FontIcon Glyph="&#xE713;" />
                             <TextBlock Text="Configurações do robô" VerticalAlignment="Center" />
