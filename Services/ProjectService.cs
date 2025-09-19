@@ -11,35 +11,12 @@ namespace RoboBlocos.Services
     public class ProjectService
     {
         private const string PROJECT_FILE_NAME = "project.json";
-        private const string PROJECTS_FOLDER = "ProjetosRoboBlocos";
 
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
             WriteIndented = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
-
-        /// <summary>
-        /// Obtém o caminho raiz onde os projetos são armazenados
-        /// </summary>
-        /// <returns>Caminho completo para a pasta de projetos</returns>
-        public static string GetProjectsRootPath()
-        {
-            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            return Path.Combine(documentsPath, PROJECTS_FOLDER);
-        }
-
-        /// <summary>
-        /// Cria o caminho completo para um novo projeto baseado no nome fornecido
-        /// </summary>
-        /// <param name="projectName">Nome do projeto</param>
-        /// <returns>Caminho completo para o diretório do projeto</returns>
-        public static string CreateProjectPath(string projectName)
-        {
-            string rootPath = GetProjectsRootPath();
-            string cleanedName = ProjectUtilities.CleanFileName(projectName, "ProjetoSemTitulo", 50);
-            return Path.Combine(rootPath, cleanedName);
-        }
 
         /// <summary>
         /// Salva as configurações do projeto de forma assíncrona
@@ -57,7 +34,7 @@ namespace RoboBlocos.Services
                 // Cria o caminho do projeto se não estiver definido
                 if (string.IsNullOrEmpty(settings.ProjectPath))
                 {
-                    settings.ProjectPath = CreateProjectPath(settings.ProjectName);
+                    settings.ProjectPath = ProjectUtilities.CreateProjectPath(settings.ProjectName);
                 }
 
                 // Garante que o diretório existe
@@ -130,7 +107,7 @@ namespace RoboBlocos.Services
         {
             try
             {
-                string rootPath = GetProjectsRootPath();
+                string rootPath = ProjectUtilities.GetProjectsRootPath();
                 if (!Directory.Exists(rootPath))
                 {
                     return Array.Empty<DirectoryInfo>();
@@ -145,6 +122,162 @@ namespace RoboBlocos.Services
             catch
             {
                 return Array.Empty<DirectoryInfo>();
+            }
+        }
+
+        /// <summary>
+        /// Exclui um projeto movendo-o para a pasta de excluídos
+        /// </summary>
+        /// <param name="projectPath">Caminho do projeto a ser excluído</param>
+        /// <returns>True se o projeto foi excluído com sucesso, False caso contrário</returns>
+        public static async Task<bool> DeleteProjectAsync(string projectPath)
+        {
+            try
+            {
+                if (!Directory.Exists(projectPath))
+                {
+                    return false;
+                }
+
+                await Task.Run(() => MoveProjectToDeletedFolder(projectPath));
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Move um projeto para a pasta de excluídos
+        /// </summary>
+        /// <param name="projectPath">Caminho do projeto a ser movido</param>
+        private static void MoveProjectToDeletedFolder(string projectPath)
+        {
+            // Criar pasta "Excluídos" se não existir
+            var deletedFolder = ProjectUtilities.GetDeletedProjectsPath();
+            if (!Directory.Exists(deletedFolder))
+            {
+                Directory.CreateDirectory(deletedFolder);
+            }
+
+            // Obter o nome da pasta do projeto
+            var projectFolderName = Path.GetFileName(projectPath);
+            var destinationPath = Path.Combine(deletedFolder, projectFolderName);
+
+            // Se já existir uma pasta com o mesmo nome na pasta de excluídos, adicionar timestamp
+            if (Directory.Exists(destinationPath))
+            {
+                var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                var newFolderName = $"{projectFolderName}_{timestamp}";
+                destinationPath = Path.Combine(deletedFolder, newFolderName);
+            }
+
+            // Mover a pasta
+            Directory.Move(projectPath, destinationPath);
+        }
+
+        // Métodos de alto nível (vindos do antigo ProjectManager)
+
+        /// <summary>
+        /// Abre um projeto existente de forma assíncrona
+        /// </summary>
+        /// <param name="project">Configurações do projeto a ser aberto</param>
+        /// <returns>True se o projeto foi aberto com sucesso, False caso contrário</returns>
+        public static async Task<bool> OpenProjectAsync(ProjectSettings project)
+        {
+            try
+            {
+                // Verificar se o projeto ainda existe
+                if (!ProjectUtilities.IsValidProjectDirectory(project.ProjectPath))
+                {
+                    return false;
+                }
+
+                // Recarregar as configurações do projeto para garantir que estão atualizadas
+                var updatedProject = await LoadProjectAsync(project.ProjectPath);
+                
+                // Atualizar a data de último acesso
+                updatedProject.LastModified = DateTime.Now;
+                await SaveProjectAsync(updatedProject);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Exclui um projeto movendo-o para a pasta de excluídos
+        /// </summary>
+        /// <param name="project">Projeto a ser excluído</param>
+        /// <returns>True se o projeto foi excluído com sucesso, False caso contrário</returns>
+        public static async Task<bool> DeleteProjectAsync(ProjectSettings project)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(project.ProjectPath))
+                {
+                    return false;
+                }
+
+                return await DeleteProjectAsync(project.ProjectPath);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Cria um novo projeto com configurações padrão e o salva
+        /// </summary>
+        /// <param name="projectName">Nome do projeto (opcional)</param>
+        /// <returns>Configurações do projeto criado ou null em caso de erro</returns>
+        public static async Task<ProjectSettings> CreateNewProjectAsync(string projectName = null)
+        {
+            try
+            {
+                // Criar configurações padrão do projeto
+                var projectSettings = ProjectUtilities.CreateDefaultProject(projectName);
+                
+                // Salvar o projeto
+                var savedProject = await SaveProjectAsync(projectSettings);
+                
+                return savedProject;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Valida se um projeto está em condições adequadas para ser usado
+        /// </summary>
+        /// <param name="project">Projeto a ser validado</param>
+        /// <returns>True se o projeto é válido, False caso contrário</returns>
+        public static async Task<bool> ValidateProjectAsync(ProjectSettings project)
+        {
+            try
+            {
+                if (project == null)
+                    return false;
+
+                // Verificar se o diretório é válido
+                if (!ProjectUtilities.IsValidProjectDirectory(project.ProjectPath))
+                    return false;
+
+                // Tentar carregar o projeto para verificar se o arquivo está íntegro
+                var loadedProject = await LoadProjectAsync(project.ProjectPath);
+                
+                return loadedProject != null;
+            }
+            catch
+            {
+                return false;
             }
         }
     }

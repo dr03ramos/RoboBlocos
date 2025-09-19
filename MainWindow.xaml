@@ -54,32 +54,9 @@
             <StackPanel VerticalAlignment="Top" HorizontalAlignment="Stretch" Grid.Column="1" Margin="24,0,0,0">
                 <TextBlock Text="Projetos recentes" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12" />
 
-                <StackPanel Spacing="4">
-                    <controls:SettingsCard x:Name="settingsCard"
-                               Description="Robô RCX2 | Porta serial COM3"
-                               Header="Programa 1"
-                               IsClickEnabled="True">
-                        
-                        <DropDownButton>
-                            <DropDownButton.Content>
-                                <TextBlock Text="Opções"/>
-                            </DropDownButton.Content>
-                            <DropDownButton.Flyout>
-                                <MenuFlyout Placement="Bottom">
-                                    <MenuFlyoutItem Text="Remover">
-                                        <MenuFlyoutItem.Icon>
-                                            <FontIcon Glyph="&#xE711;" />
-                                        </MenuFlyoutItem.Icon>
-                                    </MenuFlyoutItem>
-                                </MenuFlyout>
-                            </DropDownButton.Flyout>
-                        </DropDownButton>
-                        
-                        <controls:SettingsCard.HeaderIcon>
-                            <SymbolIcon Symbol="Document"></SymbolIcon>
-                        </controls:SettingsCard.HeaderIcon>
-                        
-                    </controls:SettingsCard>
+                <!-- Container dinâmico para projetos recentes -->
+                <StackPanel x:Name="RecentProjectsContainer" Spacing="4">
+                    <!-- Os projetos serão adicionados programaticamente aqui -->
                 </StackPanel>
             </StackPanel>
         </Grid>

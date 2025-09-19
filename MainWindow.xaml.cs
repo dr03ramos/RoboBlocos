@@ -1,12 +1,15 @@
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
-using RoboBlocos.Models;
+using Microsoft.UI.Xaml.Controls;
+using RoboBlocos.Services;
 using RoboBlocos.Utilities;
+using System.Threading.Tasks;
+using System;
 
 namespace RoboBlocos
 {
     /// <summary>
-    /// An empty window that can be used on its own or navigated to within a Frame.
+    /// Janela principal da aplicação, permite operações principais e exibe a lista de projetos recentes
     /// </summary>
     public sealed partial class MainWindow : Window
     {
@@ -22,17 +25,78 @@ namespace RoboBlocos
 
             AppWindow.SetPresenter(presenter);
 
+            // Carregar projetos recentes quando a janela é inicializada
+            LoadRecentProjects();
         }
 
+        /// <summary>
+        /// Manipula o clique no botão de novo programa
+        /// </summary>
         private async void NewProgramButton_Click(object sender, RoutedEventArgs e)
         {
-            // Create a new project with default settings
-            ProjectSettings projectSettings = ProjectUtilities.CreateDefaultProject(ProjectUtilities.GetUniqueProjectName("Novo Programa"));
+            try
+            {
+                // Criar um novo projeto usando o ProjectService
+                var projectSettings = await ProjectService.CreateNewProjectAsync(
+                    ProjectUtilities.GetUniqueProjectName("Novo Programa"));
 
-            // Close the main window and open the IDE window
-            var ide = new IDE(projectSettings);
-            ide.Activate();
-            this.Close();
+                if (projectSettings != null)
+                {
+                    // Fechar a janela principal e abrir o IDE
+                    var ide = new IDE(projectSettings);
+                    ide.Activate();
+                    this.Close();
+                }
+                else
+                {
+                    await ShowDialogAsync("Erro", "Não foi possível criar um novo projeto.");
+                }
+            }
+            catch (Exception ex)
+            {
+                await ShowDialogAsync("Erro", "Não foi possível criar um novo projeto.");
+            }
+        }
+
+        /// <summary>
+        /// Exibe um diálogo simples com uma mensagem
+        /// </summary>
+        /// <param name="title">Título do diálogo</param>
+        /// <param name="content">Conteúdo do diálogo</param>
+        private async Task ShowDialogAsync(string title, string content)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = title,
+                Content = content,
+                CloseButtonText = "OK",
+                XamlRoot = this.Content.XamlRoot
+            };
+            
+            await dialog.ShowAsync();
+        }
+
+        /// <summary>
+        /// Exibe um diálogo de confirmação com botões personalizados
+        /// </summary>
+        /// <param name="title">Título do diálogo</param>
+        /// <param name="content">Conteúdo do diálogo</param>
+        /// <param name="primaryText">Texto do botão primário</param>
+        /// <param name="cancelText">Texto do botão de cancelar</param>
+        /// <returns>True se o usuário confirmou, False caso contrário</returns>
+        private async Task<bool> ShowConfirmationDialogAsync(string title, string content, string primaryText, string cancelText)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = title,
+                Content = content,
+                PrimaryButtonText = primaryText,
+                CloseButtonText = cancelText,
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+            return result == ContentDialogResult.Primary;
         }
     }
 }
