@@ -36,7 +36,7 @@
                     </StackPanel>
                 </Button>
 
-                <Button ToolTipService.ToolTip="Importar programa existente">
+                <Button x:Name="ImportProgramButton" ToolTipService.ToolTip="Importar programa existente" Click="ImportProgramButton_Click">
                     <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                         <FontIcon Glyph="&#xE8B5;" />
                         <TextBlock Text="Importar programa" VerticalAlignment="Center" />

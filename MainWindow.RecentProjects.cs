@@ -123,6 +123,14 @@ namespace RoboBlocos
                 Placement = Microsoft.UI.Xaml.Controls.Primitives.FlyoutPlacementMode.Bottom
             };
 
+            var renameItem = new MenuFlyoutItem
+            {
+                Text = "Renomear",
+                Icon = new FontIcon { Glyph = "\uE70F" } // ícone de editar
+            };
+            renameItem.Click += async (s, e) => await RenameProjectFromRecentAsync(project);
+            menuFlyout.Items.Add(renameItem);
+
             var deleteItem = new MenuFlyoutItem
             {
                 Text = "Excluir",
@@ -134,6 +142,40 @@ namespace RoboBlocos
 
             optionsButton.Flyout = menuFlyout;
             return optionsButton;
+        }
+
+        private async System.Threading.Tasks.Task RenameProjectFromRecentAsync(ProjectSettings project)
+        {
+            var input = new TextBox { Text = project.ProjectName, Width = 300 };
+            var dialog = new ContentDialog
+            {
+                Title = "Renomear projeto",
+                Content = input,
+                PrimaryButtonText = "Renomear",
+                CloseButtonText = "Cancelar",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+            if (result != ContentDialogResult.Primary) return;
+
+            var newName = input.Text?.Trim();
+            if (string.IsNullOrWhiteSpace(newName))
+            {
+                await ShowDialogAsync("Nome inválido", "Informe um nome válido.");
+                return;
+            }
+
+            var updated = await ProjectService.RenameProjectAsync(project, newName);
+            if (updated == null)
+            {
+                await ShowDialogAsync("Falha ao renomear", "Não foi possível renomear o projeto.");
+                return;
+            }
+
+            // Recarregar a lista
+            LoadRecentProjects();
         }
 
         /// <summary>

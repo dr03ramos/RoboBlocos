@@ -54,6 +54,81 @@ namespace RoboBlocos.Services
         }
 
         /// <summary>
+        /// Renomeia o projeto (atualiza nome e pasta) e salva as configurações.
+        /// </summary>
+        /// <param name="project">Projeto a ser renomeado</param>
+        /// <param name="newName">Novo nome desejado</param>
+        /// <returns>Projeto atualizado ou null em caso de erro</returns>
+        public static async Task<ProjectSettings?> RenameProjectAsync(ProjectSettings project, string newName)
+        {
+            try
+            {
+                if (project == null) return null;
+
+                var cleaned = ProjectUtilities.CleanFileName(newName, "ProjetoSemTitulo", 50);
+                if (string.IsNullOrWhiteSpace(cleaned)) return null;
+
+                // Caminhos atuais
+                var oldPath = project.ProjectPath;
+                var root = ProjectUtilities.GetProjectsRootPath();
+                var targetName = cleaned;
+
+                // Se já existir pasta com o novo nome e não for a mesma pasta atual, gerar nome único
+                var desiredPath = Path.Combine(root, ProjectUtilities.CleanFileName(targetName));
+
+                // Se o projeto ainda não tem pasta, criar uma
+                if (string.IsNullOrWhiteSpace(oldPath))
+                {
+                    project.ProjectName = targetName;
+                    project.ProjectPath = desiredPath;
+                    return await SaveProjectAsync(project);
+                }
+
+                var oldFolderName = Path.GetFileName(oldPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+                if (string.Equals(oldFolderName, targetName, StringComparison.OrdinalIgnoreCase))
+                {
+                    // Apenas atualizar o nome interno e salvar
+                    project.ProjectName = targetName;
+                    return await SaveProjectAsync(project);
+                }
+
+                // Garantir que não vamos sobrescrever outro projeto
+                if (!string.Equals(oldPath, desiredPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    // Se já existir, gerar nome único
+                    int counter = 1;
+                    var finalPath = desiredPath;
+                    while (Directory.Exists(finalPath))
+                    {
+                        var candidate = $"{targetName} ({counter})";
+                        finalPath = Path.Combine(root, ProjectUtilities.CleanFileName(candidate));
+                        counter++;
+                    }
+
+                    desiredPath = finalPath;
+                }
+
+                // Garantir diretório raiz
+                Directory.CreateDirectory(root);
+
+                // Move diretório
+                if (!string.Equals(oldPath, desiredPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    Directory.Move(oldPath, desiredPath);
+                }
+
+                project.ProjectName = targetName;
+                project.ProjectPath = desiredPath;
+
+                return await SaveProjectAsync(project);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Carrega as configurações de um projeto de forma assíncrona
         /// </summary>
         /// <param name="projectPath">Caminho para o diretório do projeto</param>

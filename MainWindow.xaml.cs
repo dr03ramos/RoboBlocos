@@ -5,6 +5,9 @@ using RoboBlocos.Services;
 using RoboBlocos.Utilities;
 using System.Threading.Tasks;
 using System;
+using Windows.Storage.Pickers;
+using WinRT.Interop;
+using RoboBlocos.Models;
 
 namespace RoboBlocos
 {
@@ -52,9 +55,50 @@ namespace RoboBlocos
                     await ShowDialogAsync("Erro", "Não foi possível criar um novo projeto.");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await ShowDialogAsync("Erro", "Não foi possível criar um novo projeto.");
+            }
+        }
+
+        /// <summary>
+        /// Manipula o clique no botão de importar programa
+        /// </summary>
+        private async void ImportProgramButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var picker = new FolderPicker();
+                picker.FileTypeFilter.Add("*");
+                InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(this));
+
+                var folder = await picker.PickSingleFolderAsync();
+                if (folder == null)
+                    return;
+
+                // Validar e carregar o projeto
+                var path = folder.Path;
+                if (!ProjectService.ProjectExists(path))
+                {
+                    await ShowDialogAsync("Projeto inválido", "A pasta selecionada não contém um projeto RoboBlocos válido.");
+                    return;
+                }
+
+                var settings = await ProjectService.LoadProjectAsync(path);
+                if (settings == null)
+                {
+                    await ShowDialogAsync("Erro", "Não foi possível carregar o projeto selecionado.");
+                    return;
+                }
+
+                // Abrir IDE com o projeto
+                var ide = new IDE(settings);
+                ide.Activate();
+                this.Close();
+            }
+            catch (Exception)
+            {
+                await ShowDialogAsync("Erro", "Falha ao importar o projeto.");
             }
         }
 

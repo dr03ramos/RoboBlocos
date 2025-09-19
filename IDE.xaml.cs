@@ -106,6 +106,60 @@ namespace RoboBlocos
         }
 
         /// <summary>
+        /// Clique no botão Salvar
+        /// </summary>
+        private async void SaveProgramButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await ProjectService.SaveProjectAsync(CurrentProject);
+                await ShowInfoAsync("Projeto salvo", "As alterações foram salvas com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                await ShowErrorAsync("Erro ao salvar", $"Não foi possível salvar o projeto: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Clique no botão Renomear
+        /// </summary>
+        private async void RenameProjectButton_Click(object sender, RoutedEventArgs e)
+        {
+            var input = new TextBox { Text = CurrentProject.ProjectName, Width = 300 };
+
+            var dialog = new ContentDialog
+            {
+                Title = "Renomear projeto",
+                Content = input,
+                PrimaryButtonText = "Renomear",
+                CloseButtonText = "Cancelar",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+            if (result != ContentDialogResult.Primary) return;
+
+            var newName = input.Text?.Trim();
+            if (string.IsNullOrWhiteSpace(newName))
+            {
+                await ShowErrorAsync("Nome inválido", "Informe um nome válido.");
+                return;
+            }
+
+            var updated = await ProjectService.RenameProjectAsync(CurrentProject, newName);
+            if (updated == null)
+            {
+                await ShowErrorAsync("Falha ao renomear", "Não foi possível renomear o projeto.");
+                return;
+            }
+
+            CurrentProject = updated;
+            UpdateWindowTitle();
+        }
+
+        /// <summary>
         /// Volta para a janela principal fechando a janela atual
         /// </summary>
         private void GoBackToMainWindow()
@@ -130,6 +184,21 @@ namespace RoboBlocos
         /// <param name="title">Título do diálogo</param>
         /// <param name="message">Mensagem de erro a ser exibida</param>
         private async Task ShowErrorAsync(string title, string message)
+        {
+            ContentDialog dialog = new ContentDialog
+            {
+                XamlRoot = this.Content.XamlRoot,
+                Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+                Title = title,
+                Content = message,
+                PrimaryButtonText = "OK",
+                DefaultButton = ContentDialogButton.Primary
+            };
+
+            await dialog.ShowAsync();
+        }
+
+        private async Task ShowInfoAsync(string title, string message)
         {
             ContentDialog dialog = new ContentDialog
             {
