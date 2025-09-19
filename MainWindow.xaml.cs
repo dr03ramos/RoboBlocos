@@ -12,7 +12,7 @@ using RoboBlocos.Models;
 namespace RoboBlocos
 {
     /// <summary>
-    /// Janela principal da aplicaÁ„o, permite operaÁıes principais e exibe a lista de projetos recentes
+    /// Janela principal da aplica√ß√£o, permite opera√ß√µes principais e exibe a lista de projetos recentes
     /// </summary>
     public sealed partial class MainWindow : Window
     {
@@ -28,12 +28,12 @@ namespace RoboBlocos
 
             AppWindow.SetPresenter(presenter);
 
-            // Carregar projetos recentes quando a janela È inicializada
+            // Carregar projetos recentes quando a janela √© inicializada
             LoadRecentProjects();
         }
 
         /// <summary>
-        /// Manipula o clique no bot„o de novo programa
+        /// Manipula o clique no bot√£o de novo programa
         /// </summary>
         private async void NewProgramButton_Click(object sender, RoutedEventArgs e)
         {
@@ -52,17 +52,17 @@ namespace RoboBlocos
                 }
                 else
                 {
-                    await ShowDialogAsync("Erro", "N„o foi possÌvel criar um novo projeto.");
+                    await ShowDialogAsync("Erro", "N√£o foi poss√≠vel criar um novo projeto.");
                 }
             }
             catch (Exception)
             {
-                await ShowDialogAsync("Erro", "N„o foi possÌvel criar um novo projeto.");
+                await ShowDialogAsync("Erro", "N√£o foi poss√≠vel criar um novo projeto.");
             }
         }
 
         /// <summary>
-        /// Manipula o clique no bot„o de importar programa
+        /// Manipula o clique no bot√£o de importar programa
         /// </summary>
         private async void ImportProgramButton_Click(object sender, RoutedEventArgs e)
         {
@@ -80,14 +80,14 @@ namespace RoboBlocos
                 var path = folder.Path;
                 if (!ProjectService.ProjectExists(path))
                 {
-                    await ShowDialogAsync("Projeto inv·lido", "A pasta selecionada n„o contÈm um projeto RoboBlocos v·lido.");
+                    await ShowDialogAsync("Projeto inv√°lido", "A pasta selecionada n√£o cont√©m um projeto RoboBlocos v√°lido.");
                     return;
                 }
 
                 var settings = await ProjectService.LoadProjectAsync(path);
                 if (settings == null)
                 {
-                    await ShowDialogAsync("Erro", "N„o foi possÌvel carregar o projeto selecionado.");
+                    await ShowDialogAsync("Erro", "N√£o foi poss√≠vel carregar o projeto selecionado.");
                     return;
                 }
 
@@ -103,10 +103,10 @@ namespace RoboBlocos
         }
 
         /// <summary>
-        /// Exibe um di·logo simples com uma mensagem
+        /// Exibe um di√°logo simples com uma mensagem
         /// </summary>
-        /// <param name="title">TÌtulo do di·logo</param>
-        /// <param name="content">Conte˙do do di·logo</param>
+        /// <param name="title">T√≠tulo do di√°logo</param>
+        /// <param name="content">Conte√∫do do di√°logo</param>
         private async Task ShowDialogAsync(string title, string content)
         {
             var dialog = new ContentDialog
@@ -121,13 +121,13 @@ namespace RoboBlocos
         }
 
         /// <summary>
-        /// Exibe um di·logo de confirmaÁ„o com botıes personalizados
+        /// Exibe um di√°logo de confirma√ß√£o com bot√µes personalizados
         /// </summary>
-        /// <param name="title">TÌtulo do di·logo</param>
-        /// <param name="content">Conte˙do do di·logo</param>
-        /// <param name="primaryText">Texto do bot„o prim·rio</param>
-        /// <param name="cancelText">Texto do bot„o de cancelar</param>
-        /// <returns>True se o usu·rio confirmou, False caso contr·rio</returns>
+        /// <param name="title">T√≠tulo do di√°logo</param>
+        /// <param name="content">Conte√∫do do di√°logo</param>
+        /// <param name="primaryText">Texto do bot√£o prim√°rio</param>
+        /// <param name="cancelText">Texto do bot√£o de cancelar</param>
+        /// <returns>True se o usu√°rio confirmou, False caso contr√°rio</returns>
         private async Task<bool> ShowConfirmationDialogAsync(string title, string content, string primaryText, string cancelText)
         {
             var dialog = new ContentDialog

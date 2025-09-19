@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace RoboBlocos
 {
     /// <summary>
-    /// Janela de edição de configurações do projeto
+    /// Janela de ediÃ§Ã£o de configuraÃ§Ãµes do projeto
     /// </summary>
     public sealed partial class SettingsEditor : Window
     {
@@ -36,13 +36,13 @@ namespace RoboBlocos
 
             AppWindow.SetPresenter(presenter);
 
-            // Inicializa as configurações do projeto
+            // Inicializa as configuraÃ§Ãµes do projeto
             ProjectSettings = projectSettings;
 
-            // Atualiza o título da janela
+            // Atualiza o tÃ­tulo da janela
             UpdateWindowTitle();
 
-            // Atualiza a UI a partir das configurações
+            // Atualiza a UI a partir das configuraÃ§Ãµes
             this.Activated += (s, e) =>
             {
                 UpdateUIFromSettings();
@@ -66,28 +66,28 @@ namespace RoboBlocos
         {
             try
             {
-                // Atualiza as configurações a partir da UI
+                // Atualiza as configuraÃ§Ãµes a partir da UI
                 UpdateSettingsFromUI();
 
                 // Salva no arquivo
                 await ProjectService.SaveProjectAsync(ProjectSettings);
 
                 // Mostra mensagem de sucesso
-                await ShowMessageAsync("Sucesso", "Configurações salvas com sucesso!");
+                await ShowMessageAsync("Sucesso", "ConfiguraÃ§Ãµes salvas com sucesso!");
             }
             catch (Exception ex)
             {
-                await ShowMessageAsync("Erro", $"Erro ao salvar configurações: {ex.Message}");
+                await ShowMessageAsync("Erro", $"Erro ao salvar configuraÃ§Ãµes: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Atualiza o arquivo com as configurações do projeto a partir dos controles da UI
+        /// Atualiza o arquivo com as configuraÃ§Ãµes do projeto a partir dos controles da UI
         /// </summary>
         private void UpdateSettingsFromUI()
         {
             // Atualiza a partir dos controles da UI
-            // Configurações do Robô
+            // ConfiguraÃ§Ãµes do RobÃ´
             if (cmbModel?.SelectedItem is ComboBoxItem modelItem)
             {
                 ProjectSettings.RobotSettings.Model = modelItem.Content?.ToString() ?? "RCX2";
@@ -102,7 +102,7 @@ namespace RoboBlocos
                 ProjectSettings.RobotSettings.CustomFirmwarePath = txtCustomFirmware.Text;
             }
 
-            // Configurações de Conexão
+            // ConfiguraÃ§Ãµes de ConexÃ£o
             if (txtSerialPort != null)
             {
                 ProjectSettings.ConnectionSettings.SerialPort = txtSerialPort.Text;
@@ -113,7 +113,7 @@ namespace RoboBlocos
                 ProjectSettings.ConnectionSettings.ConnectionAttempts = (int)numConnectionAttempts.Value;
             }
 
-            // Configurações de Log
+            // ConfiguraÃ§Ãµes de Log
             if (chkLogFirmware != null)
             {
                 ProjectSettings.LoggingSettings.LogFirmwareDownload = chkLogFirmware.IsChecked == true;
@@ -126,11 +126,11 @@ namespace RoboBlocos
         }
 
         /// <summary>
-        /// Atualiza os controles da UI a partir do arquivo com as configurações do projeto
+        /// Atualiza os controles da UI a partir do arquivo com as configuraÃ§Ãµes do projeto
         /// </summary>
         private void UpdateUIFromSettings()
         {
-            // Configurações do Robô
+            // ConfiguraÃ§Ãµes do RobÃ´
             if (cmbModel != null)
             {
                 // Encontra e seleciona o modelo correspondente
@@ -156,7 +156,7 @@ namespace RoboBlocos
                 txtCustomFirmware.Text = ProjectSettings.RobotSettings.CustomFirmwarePath;
             }
 
-            // Configurações de Conexão
+            // ConfiguraÃ§Ãµes de ConexÃ£o
             if (txtSerialPort != null)
             {
                 txtSerialPort.Text = ProjectSettings.ConnectionSettings.SerialPort;
@@ -167,7 +167,7 @@ namespace RoboBlocos
                 numConnectionAttempts.Value = ProjectSettings.ConnectionSettings.ConnectionAttempts;
             }
 
-            // Configurações de Log
+            // ConfiguraÃ§Ãµes de Log
             if (chkLogFirmware != null)
             {
                 chkLogFirmware.IsChecked = ProjectSettings.LoggingSettings.LogFirmwareDownload;
@@ -178,15 +178,15 @@ namespace RoboBlocos
                 chkLogErrors.IsChecked = ProjectSettings.LoggingSettings.LogCompilationErrors;
             }
 
-            // Atualiza o título da janela
+            // Atualiza o tÃ­tulo da janela
             UpdateWindowTitle();
         }
 
         /// <summary>
-        /// Exibe uma mensagem ao usuário
+        /// Exibe uma mensagem ao usuÃ¡rio
         /// </summary>
-        /// <param name="title">Título da mensagem</param>
-        /// <param name="message">Conteúdo da mensagem</param>
+        /// <param name="title">TÃ­tulo da mensagem</param>
+        /// <param name="message">ConteÃºdo da mensagem</param>
         private async Task<ContentDialogResult> ShowMessageAsync(string title, string message)
         {
             ContentDialog dialog = new ContentDialog

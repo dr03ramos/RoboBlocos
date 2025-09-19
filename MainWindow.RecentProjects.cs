@@ -25,7 +25,7 @@ namespace RoboBlocos
 
                 if (recentProjects.Any())
                 {
-                    // Ordenar por ˙ltimo salvamento (mais recente primeiro)
+                    // Ordenar por √∫ltimo salvamento (mais recente primeiro)
                     var sortedProjects = recentProjects.OrderByDescending(p => p.LastModified);
 
                     foreach (var project in sortedProjects)
@@ -46,7 +46,7 @@ namespace RoboBlocos
         }
 
         /// <summary>
-        /// Exibe mensagem quando n„o h· projetos disponÌveis
+        /// Exibe mensagem quando n√£o h√° projetos dispon√≠veis
         /// </summary>
         private void ShowNoProjectsMessage()
         {
@@ -93,10 +93,10 @@ namespace RoboBlocos
                 Margin = new Thickness(0, 0, 0, 4)
             };
 
-            // Õcone do projeto
+            // √çcone do projeto
             settingsCard.HeaderIcon = new SymbolIcon(Symbol.Document);
 
-            // Bot„o de opÁıes
+            // Bot√£o de op√ß√µes
             var optionsButton = CreateOptionsButton(project);
             settingsCard.Content = optionsButton;
 
@@ -107,15 +107,15 @@ namespace RoboBlocos
         }
 
         /// <summary>
-        /// Cria o bot„o de opÁıes para um projeto
+        /// Cria o bot√£o de op√ß√µes para um projeto
         /// </summary>
-        /// <param name="project">Projeto para criar as opÁıes</param>
-        /// <returns>DropDownButton com as opÁıes do projeto</returns>
+        /// <param name="project">Projeto para criar as op√ß√µes</param>
+        /// <returns>DropDownButton com as op√ß√µes do projeto</returns>
         private DropDownButton CreateOptionsButton(ProjectSettings project)
         {
             var optionsButton = new DropDownButton
             {
-                Content = new TextBlock { Text = "OpÁıes" }
+                Content = new TextBlock { Text = "Op√ß√µes" }
             };
 
             var menuFlyout = new MenuFlyout
@@ -126,7 +126,7 @@ namespace RoboBlocos
             var renameItem = new MenuFlyoutItem
             {
                 Text = "Renomear",
-                Icon = new FontIcon { Glyph = "\uE70F" } // Ìcone de editar
+                Icon = new FontIcon { Glyph = "\uE70F" } // √≠cone de editar
             };
             renameItem.Click += async (s, e) => await RenameProjectFromRecentAsync(project);
             menuFlyout.Items.Add(renameItem);
@@ -134,7 +134,7 @@ namespace RoboBlocos
             var deleteItem = new MenuFlyoutItem
             {
                 Text = "Excluir",
-                Icon = new FontIcon { Glyph = "\uE74D" } // Õcone de lixeira
+                Icon = new FontIcon { Glyph = "\uE74D" } // √çcone de lixeira
             };
 
             deleteItem.Click += (s, e) => DeleteProject(project);
@@ -163,14 +163,14 @@ namespace RoboBlocos
             var newName = input.Text?.Trim();
             if (string.IsNullOrWhiteSpace(newName))
             {
-                await ShowDialogAsync("Nome inv·lido", "Informe um nome v·lido.");
+                await ShowDialogAsync("Nome inv√°lido", "Informe um nome v√°lido.");
                 return;
             }
 
             var updated = await ProjectService.RenameProjectAsync(project, newName);
             if (updated == null)
             {
-                await ShowDialogAsync("Falha ao renomear", "N„o foi possÌvel renomear o projeto.");
+                await ShowDialogAsync("Falha ao renomear", "N√£o foi poss√≠vel renomear o projeto.");
                 return;
             }
 
@@ -190,8 +190,8 @@ namespace RoboBlocos
                 var isValid = await ProjectService.ValidateProjectAsync(project);
                 if (!isValid)
                 {
-                    await ShowDialogAsync("Projeto n„o encontrado", 
-                        "O projeto selecionado n„o foi encontrado. Pode ter sido movido ou excluÌdo.");
+                    await ShowDialogAsync("Projeto n√£o encontrado", 
+                        "O projeto selecionado n√£o foi encontrado. Pode ter sido movido ou exclu√≠do.");
                     
                     // Recarregar a lista de projetos
                     LoadRecentProjects();
@@ -209,23 +209,23 @@ namespace RoboBlocos
                 }
                 else
                 {
-                    await ShowDialogAsync("Erro", "N„o foi possÌvel abrir o projeto selecionado.");
+                    await ShowDialogAsync("Erro", "N√£o foi poss√≠vel abrir o projeto selecionado.");
                 }
             }
             catch (Exception)
             {
-                await ShowDialogAsync("Erro", "N„o foi possÌvel abrir o projeto selecionado.");
+                await ShowDialogAsync("Erro", "N√£o foi poss√≠vel abrir o projeto selecionado.");
             }
         }
 
         /// <summary>
-        /// Exclui um projeto apÛs confirmaÁ„o do usu·rio
+        /// Exclui um projeto ap√≥s confirma√ß√£o do usu√°rio
         /// </summary>
-        /// <param name="project">Projeto a ser excluÌdo</param>
+        /// <param name="project">Projeto a ser exclu√≠do</param>
         private async void DeleteProject(ProjectSettings project)
         {
-            var confirmed = await ShowConfirmationDialogAsync("Confirmar exclus„o", 
-                $"Deseja realmente excluir o projeto \"{ProjectUtilities.GetProjectDisplayName(project)}\"?\n\nO projeto ser· movido para a pasta de excluÌdos e poder· ser recuperado.",
+            var confirmed = await ShowConfirmationDialogAsync("Confirmar exclus√£o", 
+                $"Deseja realmente excluir o projeto \"{ProjectUtilities.GetProjectDisplayName(project)}\"?\n\nO projeto ser√° movido para a pasta de exclu√≠dos e poder√° ser recuperado.",
                 "Excluir", "Cancelar");
 
             if (confirmed)
@@ -236,14 +236,14 @@ namespace RoboBlocos
                     
                     if (!success)
                     {
-                        await ShowDialogAsync("Projeto n„o encontrado", 
-                            "O diretÛrio do projeto n„o foi encontrado. Pode ter sido movido ou excluÌdo anteriormente.");
+                        await ShowDialogAsync("Projeto n√£o encontrado", 
+                            "O diret√≥rio do projeto n√£o foi encontrado. Pode ter sido movido ou exclu√≠do anteriormente.");
                     }
                 }
                 catch (Exception ex)
                 {
                     await ShowDialogAsync("Erro ao excluir", 
-                        $"N„o foi possÌvel excluir o projeto: {ex.Message}");
+                        $"N√£o foi poss√≠vel excluir o projeto: {ex.Message}");
                 }
                 finally
                 {

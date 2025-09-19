@@ -19,28 +19,28 @@ namespace RoboBlocos.Services
         };
 
         /// <summary>
-        /// Salva as configuraÁıes do projeto de forma assÌncrona
+        /// Salva as configura√ß√µes do projeto de forma ass√≠ncrona
         /// </summary>
-        /// <param name="settings">ConfiguraÁıes do projeto a serem salvas</param>
-        /// <returns>ConfiguraÁıes atualizadas do projeto</returns>
-        /// <exception cref="InvalidOperationException">LanÁada quando n„o È possÌvel salvar o projeto</exception>
+        /// <param name="settings">Configura√ß√µes do projeto a serem salvas</param>
+        /// <returns>Configura√ß√µes atualizadas do projeto</returns>
+        /// <exception cref="InvalidOperationException">Lan√ßada quando n√£o √© poss√≠vel salvar o projeto</exception>
         public static async Task<ProjectSettings> SaveProjectAsync(ProjectSettings settings)
         {
             try
             {
-                // Atualiza o tempo da ˙ltima modificaÁ„o
+                // Atualiza o tempo da √∫ltima modifica√ß√£o
                 settings.LastModified = DateTime.Now;
 
-                // Cria o caminho do projeto se n„o estiver definido
+                // Cria o caminho do projeto se n√£o estiver definido
                 if (string.IsNullOrEmpty(settings.ProjectPath))
                 {
                     settings.ProjectPath = ProjectUtilities.CreateProjectPath(settings.ProjectName);
                 }
 
-                // Garante que o diretÛrio existe
+                // Garante que o diret√≥rio existe
                 Directory.CreateDirectory(settings.ProjectPath);
 
-                // Salva as configuraÁıes do projeto
+                // Salva as configura√ß√µes do projeto
                 string projectFilePath = Path.Combine(settings.ProjectPath, PROJECT_FILE_NAME);
                 string json = JsonSerializer.Serialize(settings, JsonOptions);
                 await File.WriteAllTextAsync(projectFilePath, json);
@@ -54,7 +54,7 @@ namespace RoboBlocos.Services
         }
 
         /// <summary>
-        /// Renomeia o projeto (atualiza nome e pasta) e salva as configuraÁıes.
+        /// Renomeia o projeto (atualiza nome e pasta) e salva as configura√ß√µes.
         /// </summary>
         /// <param name="project">Projeto a ser renomeado</param>
         /// <param name="newName">Novo nome desejado</param>
@@ -73,10 +73,10 @@ namespace RoboBlocos.Services
                 var root = ProjectUtilities.GetProjectsRootPath();
                 var targetName = cleaned;
 
-                // Se j· existir pasta com o novo nome e n„o for a mesma pasta atual, gerar nome ˙nico
+                // Se j√° existir pasta com o novo nome e n√£o for a mesma pasta atual, gerar nome √∫nico
                 var desiredPath = Path.Combine(root, ProjectUtilities.CleanFileName(targetName));
 
-                // Se o projeto ainda n„o tem pasta, criar uma
+                // Se o projeto ainda n√£o tem pasta, criar uma
                 if (string.IsNullOrWhiteSpace(oldPath))
                 {
                     project.ProjectName = targetName;
@@ -92,10 +92,10 @@ namespace RoboBlocos.Services
                     return await SaveProjectAsync(project);
                 }
 
-                // Garantir que n„o vamos sobrescrever outro projeto
+                // Garantir que n√£o vamos sobrescrever outro projeto
                 if (!string.Equals(oldPath, desiredPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    // Se j· existir, gerar nome ˙nico
+                    // Se j√° existir, gerar nome √∫nico
                     int counter = 1;
                     var finalPath = desiredPath;
                     while (Directory.Exists(finalPath))
@@ -108,10 +108,10 @@ namespace RoboBlocos.Services
                     desiredPath = finalPath;
                 }
 
-                // Garantir diretÛrio raiz
+                // Garantir diret√≥rio raiz
                 Directory.CreateDirectory(root);
 
-                // Move diretÛrio
+                // Move diret√≥rio
                 if (!string.Equals(oldPath, desiredPath, StringComparison.OrdinalIgnoreCase))
                 {
                     Directory.Move(oldPath, desiredPath);
@@ -129,12 +129,12 @@ namespace RoboBlocos.Services
         }
 
         /// <summary>
-        /// Carrega as configuraÁıes de um projeto de forma assÌncrona
+        /// Carrega as configura√ß√µes de um projeto de forma ass√≠ncrona
         /// </summary>
-        /// <param name="projectPath">Caminho para o diretÛrio do projeto</param>
-        /// <returns>ConfiguraÁıes do projeto carregadas</returns>
-        /// <exception cref="FileNotFoundException">LanÁada quando o arquivo do projeto n„o È encontrado</exception>
-        /// <exception cref="InvalidOperationException">LanÁada quando n„o È possÌvel carregar o projeto</exception>
+        /// <param name="projectPath">Caminho para o diret√≥rio do projeto</param>
+        /// <returns>Configura√ß√µes do projeto carregadas</returns>
+        /// <exception cref="FileNotFoundException">Lan√ßada quando o arquivo do projeto n√£o √© encontrado</exception>
+        /// <exception cref="InvalidOperationException">Lan√ßada quando n√£o √© poss√≠vel carregar o projeto</exception>
         public static async Task<ProjectSettings> LoadProjectAsync(string projectPath)
         {
             try
@@ -143,7 +143,7 @@ namespace RoboBlocos.Services
                 
                 if (!File.Exists(projectFilePath))
                 {
-                    throw new FileNotFoundException($"Arquivo do projeto n„o encontrado: {projectFilePath}");
+                    throw new FileNotFoundException($"Arquivo do projeto n√£o encontrado: {projectFilePath}");
                 }
 
                 string json = await File.ReadAllTextAsync(projectFilePath);
@@ -151,7 +151,7 @@ namespace RoboBlocos.Services
 
                 if (settings == null)
                 {
-                    throw new InvalidOperationException("Falha ao deserializar as configuraÁıes do projeto");
+                    throw new InvalidOperationException("Falha ao deserializar as configura√ß√µes do projeto");
                 }
 
                 // Atualiza o caminho do projeto caso tenha sido movido
@@ -168,16 +168,16 @@ namespace RoboBlocos.Services
         /// Verifica se um projeto existe no caminho especificado
         /// </summary>
         /// <param name="projectPath">Caminho para verificar</param>
-        /// <returns>True se o projeto existe, False caso contr·rio</returns>
+        /// <returns>True se o projeto existe, False caso contr√°rio</returns>
         public static bool ProjectExists(string projectPath)
         {
             return File.Exists(Path.Combine(projectPath, PROJECT_FILE_NAME));
         }
 
         /// <summary>
-        /// ObtÈm todos os projetos existentes no diretÛrio raiz
+        /// Obt√©m todos os projetos existentes no diret√≥rio raiz
         /// </summary>
-        /// <returns>Array de DirectoryInfo com os projetos encontrados, ordenados por data de modificaÁ„o</returns>
+        /// <returns>Array de DirectoryInfo com os projetos encontrados, ordenados por data de modifica√ß√£o</returns>
         public static DirectoryInfo[] GetAllProjects()
         {
             try
@@ -201,10 +201,10 @@ namespace RoboBlocos.Services
         }
 
         /// <summary>
-        /// Exclui um projeto movendo-o para a pasta de excluÌdos
+        /// Exclui um projeto movendo-o para a pasta de exclu√≠dos
         /// </summary>
-        /// <param name="projectPath">Caminho do projeto a ser excluÌdo</param>
-        /// <returns>True se o projeto foi excluÌdo com sucesso, False caso contr·rio</returns>
+        /// <param name="projectPath">Caminho do projeto a ser exclu√≠do</param>
+        /// <returns>True se o projeto foi exclu√≠do com sucesso, False caso contr√°rio</returns>
         public static async Task<bool> DeleteProjectAsync(string projectPath)
         {
             try
@@ -224,12 +224,12 @@ namespace RoboBlocos.Services
         }
 
         /// <summary>
-        /// Move um projeto para a pasta de excluÌdos
+        /// Move um projeto para a pasta de exclu√≠dos
         /// </summary>
         /// <param name="projectPath">Caminho do projeto a ser movido</param>
         private static void MoveProjectToDeletedFolder(string projectPath)
         {
-            // Criar pasta "ExcluÌdos" se n„o existir
+            // Criar pasta "Exclu√≠dos" se n√£o existir
             var deletedFolder = ProjectUtilities.GetDeletedProjectsPath();
             if (!Directory.Exists(deletedFolder))
             {
@@ -240,7 +240,7 @@ namespace RoboBlocos.Services
             var projectFolderName = Path.GetFileName(projectPath);
             var destinationPath = Path.Combine(deletedFolder, projectFolderName);
 
-            // Se j· existir uma pasta com o mesmo nome na pasta de excluÌdos, adicionar timestamp
+            // Se j√° existir uma pasta com o mesmo nome na pasta de exclu√≠dos, adicionar timestamp
             if (Directory.Exists(destinationPath))
             {
                 var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
@@ -252,13 +252,13 @@ namespace RoboBlocos.Services
             Directory.Move(projectPath, destinationPath);
         }
 
-        // MÈtodos de alto nÌvel (vindos do antigo ProjectManager)
+        // M√©todos de alto n√≠vel (vindos do antigo ProjectManager)
 
         /// <summary>
-        /// Abre um projeto existente de forma assÌncrona
+        /// Abre um projeto existente de forma ass√≠ncrona
         /// </summary>
-        /// <param name="project">ConfiguraÁıes do projeto a ser aberto</param>
-        /// <returns>True se o projeto foi aberto com sucesso, False caso contr·rio</returns>
+        /// <param name="project">Configura√ß√µes do projeto a ser aberto</param>
+        /// <returns>True se o projeto foi aberto com sucesso, False caso contr√°rio</returns>
         public static async Task<bool> OpenProjectAsync(ProjectSettings project)
         {
             try
@@ -269,10 +269,10 @@ namespace RoboBlocos.Services
                     return false;
                 }
 
-                // Recarregar as configuraÁıes do projeto para garantir que est„o atualizadas
+                // Recarregar as configura√ß√µes do projeto para garantir que est√£o atualizadas
                 var updatedProject = await LoadProjectAsync(project.ProjectPath);
                 
-                // Atualizar a data de ˙ltimo acesso
+                // Atualizar a data de √∫ltimo acesso
                 updatedProject.LastModified = DateTime.Now;
                 await SaveProjectAsync(updatedProject);
 
@@ -285,10 +285,10 @@ namespace RoboBlocos.Services
         }
 
         /// <summary>
-        /// Exclui um projeto movendo-o para a pasta de excluÌdos
+        /// Exclui um projeto movendo-o para a pasta de exclu√≠dos
         /// </summary>
-        /// <param name="project">Projeto a ser excluÌdo</param>
-        /// <returns>True se o projeto foi excluÌdo com sucesso, False caso contr·rio</returns>
+        /// <param name="project">Projeto a ser exclu√≠do</param>
+        /// <returns>True se o projeto foi exclu√≠do com sucesso, False caso contr√°rio</returns>
         public static async Task<bool> DeleteProjectAsync(ProjectSettings project)
         {
             try
@@ -307,15 +307,15 @@ namespace RoboBlocos.Services
         }
 
         /// <summary>
-        /// Cria um novo projeto com configuraÁıes padr„o e o salva
+        /// Cria um novo projeto com configura√ß√µes padr√£o e o salva
         /// </summary>
         /// <param name="projectName">Nome do projeto (opcional)</param>
-        /// <returns>ConfiguraÁıes do projeto criado ou null em caso de erro</returns>
+        /// <returns>Configura√ß√µes do projeto criado ou null em caso de erro</returns>
         public static async Task<ProjectSettings> CreateNewProjectAsync(string projectName = null)
         {
             try
             {
-                // Criar configuraÁıes padr„o do projeto
+                // Criar configura√ß√µes padr√£o do projeto
                 var projectSettings = ProjectUtilities.CreateDefaultProject(projectName);
                 
                 // Salvar o projeto
@@ -330,10 +330,10 @@ namespace RoboBlocos.Services
         }
 
         /// <summary>
-        /// Valida se um projeto est· em condiÁıes adequadas para ser usado
+        /// Valida se um projeto est√° em condi√ß√µes adequadas para ser usado
         /// </summary>
         /// <param name="project">Projeto a ser validado</param>
-        /// <returns>True se o projeto È v·lido, False caso contr·rio</returns>
+        /// <returns>True se o projeto √© v√°lido, False caso contr√°rio</returns>
         public static async Task<bool> ValidateProjectAsync(ProjectSettings project)
         {
             try
@@ -341,11 +341,11 @@ namespace RoboBlocos.Services
                 if (project == null)
                     return false;
 
-                // Verificar se o diretÛrio È v·lido
+                // Verificar se o diret√≥rio √© v√°lido
                 if (!ProjectUtilities.IsValidProjectDirectory(project.ProjectPath))
                     return false;
 
-                // Tentar carregar o projeto para verificar se o arquivo est· Ìntegro
+                // Tentar carregar o projeto para verificar se o arquivo est√° √≠ntegro
                 var loadedProject = await LoadProjectAsync(project.ProjectPath);
                 
                 return loadedProject != null;

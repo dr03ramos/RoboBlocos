@@ -11,10 +11,10 @@ namespace RoboBlocos.Utilities
     public static class ProjectUtilities
     {
         private const string PROJECTS_FOLDER = "ProjetosRoboBlocos";
-        private const string DELETED_FOLDER = "ExcluÌdos";
+        private const string DELETED_FOLDER = "Exclu√≠dos";
 
         /// <summary>
-        /// ObtÈm o caminho raiz onde os projetos s„o armazenados
+        /// Obt√©m o caminho raiz onde os projetos s√£o armazenados
         /// </summary>
         /// <returns>Caminho completo para a pasta de projetos</returns>
         public static string GetProjectsRootPath()
@@ -24,19 +24,19 @@ namespace RoboBlocos.Utilities
         }
 
         /// <summary>
-        /// ObtÈm o caminho para a pasta de projetos excluÌdos
+        /// Obt√©m o caminho para a pasta de projetos exclu√≠dos
         /// </summary>
-        /// <returns>Caminho completo para a pasta de projetos excluÌdos</returns>
+        /// <returns>Caminho completo para a pasta de projetos exclu√≠dos</returns>
         public static string GetDeletedProjectsPath()
         {
             return Path.Combine(GetProjectsRootPath(), DELETED_FOLDER);
         }
 
         /// <summary>
-        /// ObtÈm uma lista de projetos acessados recentemente
+        /// Obt√©m uma lista de projetos acessados recentemente
         /// </summary>
-        /// <param name="maxCount">N˙mero m·ximo de projetos a retornar</param>
-        /// <returns>Lista de configuraÁıes de projetos recentes</returns>
+        /// <param name="maxCount">N√∫mero m√°ximo de projetos a retornar</param>
+        /// <returns>Lista de configura√ß√µes de projetos recentes</returns>
         public static async Task<List<ProjectSettings>> GetRecentProjectsAsync(int maxCount = 10)
         {
             var recentProjects = new List<ProjectSettings>();
@@ -54,24 +54,24 @@ namespace RoboBlocos.Utilities
                     }
                     catch
                     {
-                        // Ignorar projetos que n„o podem ser carregados
+                        // Ignorar projetos que n√£o podem ser carregados
                         continue;
                     }
                 }
             }
             catch
             {
-                // Se houver um erro ao acessar o diretÛrio dos projetos, retornar lista vazia
+                // Se houver um erro ao acessar o diret√≥rio dos projetos, retornar lista vazia
             }
 
             return recentProjects;
         }
 
         /// <summary>
-        /// Cria um nome ˙nico de projeto se o nome sugerido j· existir
+        /// Cria um nome √∫nico de projeto se o nome sugerido j√° existir
         /// </summary>
         /// <param name="baseName">Nome base para o projeto</param>
-        /// <returns>Nome ˙nico para o projeto</returns>
+        /// <returns>Nome √∫nico para o projeto</returns>
         public static string GetUniqueProjectName(string baseName)
         {
             var rootPath = GetProjectsRootPath();
@@ -91,7 +91,7 @@ namespace RoboBlocos.Utilities
         /// Cria o caminho completo para um novo projeto baseado no nome fornecido
         /// </summary>
         /// <param name="projectName">Nome do projeto</param>
-        /// <returns>Caminho completo para o diretÛrio do projeto</returns>
+        /// <returns>Caminho completo para o diret√≥rio do projeto</returns>
         public static string CreateProjectPath(string projectName)
         {
             string rootPath = GetProjectsRootPath();
@@ -100,12 +100,12 @@ namespace RoboBlocos.Utilities
         }
 
         /// <summary>
-        /// Remove caracteres inv·lidos de um nome de arquivo e garante o comprimento adequado
+        /// Remove caracteres inv√°lidos de um nome de arquivo e garante o comprimento adequado
         /// </summary>
         /// <param name="fileName">O nome do arquivo a ser limpo</param>
-        /// <param name="defaultName">Nome padr„o a ser usado se o nome do arquivo estiver vazio ou inv·lido</param>
-        /// <param name="maxLength">Comprimento m·ximo para o nome do arquivo (null para sem limite)</param>
-        /// <returns>Um nome de arquivo limpo e v·lido</returns>
+        /// <param name="defaultName">Nome padr√£o a ser usado se o nome do arquivo estiver vazio ou inv√°lido</param>
+        /// <param name="maxLength">Comprimento m√°ximo para o nome do arquivo (null para sem limite)</param>
+        /// <returns>Um nome de arquivo limpo e v√°lido</returns>
         public static string CleanFileName(string fileName, string defaultName = "ProjetoSemTitulo", int? maxLength = null)
         {
             if (string.IsNullOrWhiteSpace(fileName))
@@ -128,10 +128,10 @@ namespace RoboBlocos.Utilities
         }
 
         /// <summary>
-        /// ObtÈm as configuraÁıes padr„o do projeto para um novo projeto
+        /// Obt√©m as configura√ß√µes padr√£o do projeto para um novo projeto
         /// </summary>
         /// <param name="projectName">Nome do projeto (opcional)</param>
-        /// <returns>ConfiguraÁıes padr„o do projeto</returns>
+        /// <returns>Configura√ß√µes padr√£o do projeto</returns>
         public static ProjectSettings CreateDefaultProject(string projectName = null)
         {
             var finalName = string.IsNullOrEmpty(projectName) 
@@ -150,10 +150,10 @@ namespace RoboBlocos.Utilities
         }
 
         /// <summary>
-        /// Verifica se um diretÛrio de projeto existe e contÈm um arquivo de projeto v·lido
+        /// Verifica se um diret√≥rio de projeto existe e cont√©m um arquivo de projeto v√°lido
         /// </summary>
-        /// <param name="path">Caminho do diretÛrio a verificar</param>
-        /// <returns>True se È um diretÛrio de projeto v·lido, False caso contr·rio</returns>
+        /// <param name="path">Caminho do diret√≥rio a verificar</param>
+        /// <returns>True se √© um diret√≥rio de projeto v√°lido, False caso contr√°rio</returns>
         public static bool IsValidProjectDirectory(string path)
         {
             return !string.IsNullOrEmpty(path) && 
@@ -162,10 +162,10 @@ namespace RoboBlocos.Utilities
         }
 
         /// <summary>
-        /// Cria um projeto ˙nico com nome gerado automaticamente e o salva
+        /// Cria um projeto √∫nico com nome gerado automaticamente e o salva
         /// </summary>
         /// <param name="baseName">Nome base para o projeto (opcional)</param>
-        /// <returns>ConfiguraÁıes do projeto criado</returns>
+        /// <returns>Configura√ß√µes do projeto criado</returns>
         public static async Task<ProjectSettings> CreateUniqueProjectAsync(string baseName = "Novo Programa")
         {
             var uniqueName = GetUniqueProjectName(baseName);
@@ -175,10 +175,10 @@ namespace RoboBlocos.Utilities
         }
 
         /// <summary>
-        /// ObtÈm o nome de exibiÁ„o formatado para um projeto
+        /// Obt√©m o nome de exibi√ß√£o formatado para um projeto
         /// </summary>
         /// <param name="project">Projeto para formatar o nome</param>
-        /// <returns>Nome formatado para exibiÁ„o</returns>
+        /// <returns>Nome formatado para exibi√ß√£o</returns>
         public static string GetProjectDisplayName(ProjectSettings project)
         {
             if (project == null || string.IsNullOrEmpty(project.ProjectName))
@@ -190,18 +190,18 @@ namespace RoboBlocos.Utilities
         }
 
         /// <summary>
-        /// ObtÈm a descriÁ„o formatada de um projeto para exibiÁ„o na interface
+        /// Obt√©m a descri√ß√£o formatada de um projeto para exibi√ß√£o na interface
         /// </summary>
-        /// <param name="project">Projeto para obter a descriÁ„o</param>
-        /// <returns>DescriÁ„o formatada do projeto</returns>
+        /// <param name="project">Projeto para obter a descri√ß√£o</param>
+        /// <returns>Descri√ß√£o formatada do projeto</returns>
         public static string GetProjectDisplayDescription(ProjectSettings project)
         {
             if (project?.RobotSettings == null || project.ConnectionSettings == null)
             {
-                return "ConfiguraÁıes indisponÌveis";
+                return "Configura√ß√µes indispon√≠veis";
             }
 
-            return $"RobÙ {project.RobotSettings.Model} | Porta {project.ConnectionSettings.SerialPort} | Modificado em {project.LastModified:dd/MM/yyyy HH:mm}";
+            return $"Rob√¥ {project.RobotSettings.Model} | Porta {project.ConnectionSettings.SerialPort} | Modificado em {project.LastModified:dd/MM/yyyy HH:mm}";
         }
     }
 }
