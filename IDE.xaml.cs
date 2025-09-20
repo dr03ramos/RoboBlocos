@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using RoboBlocos.Models;
 using RoboBlocos.Services;
 using System.Threading.Tasks;
+using RoboBlocos.Utilities;
 
 namespace RoboBlocos
 {
@@ -73,19 +74,7 @@ namespace RoboBlocos
         /// </summary>
         private async void NavViewTitleBar_BackRequested(TitleBar sender, object args)
         {
-            // Pergunta ao usuário se deseja salvar antes de voltar
-            ContentDialog dialog = new ContentDialog();
-
-            dialog.XamlRoot = this.Content.XamlRoot;
-            dialog.Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
-            dialog.Title = "Salvar projeto antes de sair?";
-            dialog.Content = "Deseja salvar as alterações no projeto antes de voltar ao menu principal?";
-            dialog.PrimaryButtonText = "Salvar e Sair";
-            dialog.SecondaryButtonText = "Sair sem Salvar";
-            dialog.CloseButtonText = "Cancelar";
-            dialog.DefaultButton = ContentDialogButton.Primary;
-
-            var result = await dialog.ShowAsync();
+            var result = await JanelaUtilities.ShowSaveBeforeExitDialogAsync(this);
 
             if (result == ContentDialogResult.Primary)
             {
@@ -96,7 +85,7 @@ namespace RoboBlocos
                 }
                 catch (Exception ex)
                 {
-                    await ShowErrorAsync("Erro ao salvar", $"Não foi possível salvar o projeto: {ex.Message}");
+                    await JanelaUtilities.ShowErrorDialogAsync(this, "Erro ao salvar", $"Não foi possível salvar o projeto: {ex.Message}");
                 }
             }
             else if (result == ContentDialogResult.Secondary)
@@ -113,11 +102,11 @@ namespace RoboBlocos
             try
             {
                 await ProjectService.SaveProjectAsync(CurrentProject);
-                await ShowInfoAsync("Projeto salvo", "As alterações foram salvas com sucesso.");
+                await JanelaUtilities.ShowInfoDialogAsync(this, "Projeto salvo", "As alterações foram salvas com sucesso.");
             }
             catch (Exception ex)
             {
-                await ShowErrorAsync("Erro ao salvar", $"Não foi possível salvar o projeto: {ex.Message}");
+                await JanelaUtilities.ShowErrorDialogAsync(this, "Erro ao salvar", $"Não foi possível salvar o projeto: {ex.Message}");
             }
         }
 
@@ -126,32 +115,23 @@ namespace RoboBlocos
         /// </summary>
         private async void RenameProjectButton_Click(object sender, RoutedEventArgs e)
         {
-            var input = new TextBox { Text = CurrentProject.ProjectName, Width = 300 };
+            var newName = await JanelaUtilities.ShowRenameDialogAsync(this, CurrentProject.ProjectName);
 
-            var dialog = new ContentDialog
-            {
-                Title = "Renomear projeto",
-                Content = input,
-                PrimaryButtonText = "Renomear",
-                CloseButtonText = "Cancelar",
-                DefaultButton = ContentDialogButton.Primary,
-                XamlRoot = this.Content.XamlRoot
-            };
+            // Se cancelado, não mostrar mensagem
+            if (newName is null)
+                return;
 
-            var result = await dialog.ShowAsync();
-            if (result != ContentDialogResult.Primary) return;
-
-            var newName = input.Text?.Trim();
+            // Validação adicional por segurança
             if (string.IsNullOrWhiteSpace(newName))
             {
-                await ShowErrorAsync("Nome inválido", "Informe um nome válido.");
+                await JanelaUtilities.ShowErrorDialogAsync(this, "Nome inválido", "Informe um nome válido.");
                 return;
             }
 
             var updated = await ProjectService.RenameProjectAsync(CurrentProject, newName);
             if (updated == null)
             {
-                await ShowErrorAsync("Falha ao renomear", "Não foi possível renomear o projeto.");
+                await JanelaUtilities.ShowErrorDialogAsync(this, "Falha ao renomear", "Não foi possível renomear o projeto.");
                 return;
             }
 
@@ -176,41 +156,6 @@ namespace RoboBlocos
         {
             var settingsEditor = new SettingsEditor(CurrentProject);
             settingsEditor.Activate();
-        }
-
-        /// <summary>
-        /// Exibe uma mensagem de erro em um diálogo
-        /// </summary>
-        /// <param name="title">Título do diálogo</param>
-        /// <param name="message">Mensagem de erro a ser exibida</param>
-        private async Task ShowErrorAsync(string title, string message)
-        {
-            ContentDialog dialog = new ContentDialog
-            {
-                XamlRoot = this.Content.XamlRoot,
-                Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
-                Title = title,
-                Content = message,
-                PrimaryButtonText = "OK",
-                DefaultButton = ContentDialogButton.Primary
-            };
-
-            await dialog.ShowAsync();
-        }
-
-        private async Task ShowInfoAsync(string title, string message)
-        {
-            ContentDialog dialog = new ContentDialog
-            {
-                XamlRoot = this.Content.XamlRoot,
-                Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
-                Title = title,
-                Content = message,
-                PrimaryButtonText = "OK",
-                DefaultButton = ContentDialogButton.Primary
-            };
-
-            await dialog.ShowAsync();
         }
     }
 }

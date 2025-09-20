@@ -52,12 +52,12 @@ namespace RoboBlocos
                 }
                 else
                 {
-                    await ShowDialogAsync("Erro", "Não foi possível criar um novo projeto.");
+                    await JanelaUtilities.ShowSimpleDialogAsync(this, "Erro", "Não foi possível criar um novo projeto.");
                 }
             }
             catch (Exception)
             {
-                await ShowDialogAsync("Erro", "Não foi possível criar um novo projeto.");
+                await JanelaUtilities.ShowSimpleDialogAsync(this, "Erro", "Não foi possível criar um novo projeto.");
             }
         }
 
@@ -80,14 +80,14 @@ namespace RoboBlocos
                 var path = folder.Path;
                 if (!ProjectService.ProjectExists(path))
                 {
-                    await ShowDialogAsync("Projeto inválido", "A pasta selecionada não contém um projeto RoboBlocos válido.");
+                    await JanelaUtilities.ShowSimpleDialogAsync(this, "Projeto inválido", "A pasta selecionada não contém um projeto RoboBlocos válido.");
                     return;
                 }
 
                 var settings = await ProjectService.LoadProjectAsync(path);
                 if (settings == null)
                 {
-                    await ShowDialogAsync("Erro", "Não foi possível carregar o projeto selecionado.");
+                    await JanelaUtilities.ShowSimpleDialogAsync(this, "Erro", "Não foi possível carregar o projeto selecionado.");
                     return;
                 }
 
@@ -98,49 +98,8 @@ namespace RoboBlocos
             }
             catch (Exception)
             {
-                await ShowDialogAsync("Erro", "Falha ao importar o projeto.");
+                await JanelaUtilities.ShowSimpleDialogAsync(this, "Erro", "Falha ao importar o projeto.");
             }
-        }
-
-        /// <summary>
-        /// Exibe um diálogo simples com uma mensagem
-        /// </summary>
-        /// <param name="title">Título do diálogo</param>
-        /// <param name="content">Conteúdo do diálogo</param>
-        private async Task ShowDialogAsync(string title, string content)
-        {
-            var dialog = new ContentDialog
-            {
-                Title = title,
-                Content = content,
-                CloseButtonText = "OK",
-                XamlRoot = this.Content.XamlRoot
-            };
-            
-            await dialog.ShowAsync();
-        }
-
-        /// <summary>
-        /// Exibe um diálogo de confirmação com botões personalizados
-        /// </summary>
-        /// <param name="title">Título do diálogo</param>
-        /// <param name="content">Conteúdo do diálogo</param>
-        /// <param name="primaryText">Texto do botão primário</param>
-        /// <param name="cancelText">Texto do botão de cancelar</param>
-        /// <returns>True se o usuário confirmou, False caso contrário</returns>
-        private async Task<bool> ShowConfirmationDialogAsync(string title, string content, string primaryText, string cancelText)
-        {
-            var dialog = new ContentDialog
-            {
-                Title = title,
-                Content = content,
-                PrimaryButtonText = primaryText,
-                CloseButtonText = cancelText,
-                XamlRoot = this.Content.XamlRoot
-            };
-
-            var result = await dialog.ShowAsync();
-            return result == ContentDialogResult.Primary;
         }
     }
 }

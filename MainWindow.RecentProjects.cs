@@ -5,6 +5,7 @@ using RoboBlocos.Services;
 using RoboBlocos.Utilities;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.WinUI.Controls;
 
 namespace RoboBlocos
@@ -144,33 +145,25 @@ namespace RoboBlocos
             return optionsButton;
         }
 
-        private async System.Threading.Tasks.Task RenameProjectFromRecentAsync(ProjectSettings project)
+        private async Task RenameProjectFromRecentAsync(ProjectSettings project)
         {
-            var input = new TextBox { Text = project.ProjectName, Width = 300 };
-            var dialog = new ContentDialog
-            {
-                Title = "Renomear projeto",
-                Content = input,
-                PrimaryButtonText = "Renomear",
-                CloseButtonText = "Cancelar",
-                DefaultButton = ContentDialogButton.Primary,
-                XamlRoot = this.Content.XamlRoot
-            };
+            var newName = await JanelaUtilities.ShowRenameDialogAsync(this, project.ProjectName);
 
-            var result = await dialog.ShowAsync();
-            if (result != ContentDialogResult.Primary) return;
+            // Se cancelado, não mostrar mensagem
+            if (newName is null)
+                return;
 
-            var newName = input.Text?.Trim();
+            // Validação adicional por segurança
             if (string.IsNullOrWhiteSpace(newName))
             {
-                await ShowDialogAsync("Nome inválido", "Informe um nome válido.");
+                await JanelaUtilities.ShowErrorDialogAsync(this, "Nome inválido", "Informe um nome válido.");
                 return;
             }
 
             var updated = await ProjectService.RenameProjectAsync(project, newName);
             if (updated == null)
             {
-                await ShowDialogAsync("Falha ao renomear", "Não foi possível renomear o projeto.");
+                await JanelaUtilities.ShowErrorDialogAsync(this, "Falha ao renomear", "Não foi possível renomear o projeto.");
                 return;
             }
 
@@ -190,7 +183,7 @@ namespace RoboBlocos
                 var isValid = await ProjectService.ValidateProjectAsync(project);
                 if (!isValid)
                 {
-                    await ShowDialogAsync("Projeto não encontrado", 
+                    await JanelaUtilities.ShowSimpleDialogAsync(this, "Projeto não encontrado", 
                         "O projeto selecionado não foi encontrado. Pode ter sido movido ou excluído.");
                     
                     // Recarregar a lista de projetos
@@ -209,12 +202,12 @@ namespace RoboBlocos
                 }
                 else
                 {
-                    await ShowDialogAsync("Erro", "Não foi possível abrir o projeto selecionado.");
+                    await JanelaUtilities.ShowSimpleDialogAsync(this, "Erro", "Não foi possível abrir o projeto selecionado.");
                 }
             }
             catch (Exception)
             {
-                await ShowDialogAsync("Erro", "Não foi possível abrir o projeto selecionado.");
+                await JanelaUtilities.ShowSimpleDialogAsync(this, "Erro", "Não foi possível abrir o projeto selecionado.");
             }
         }
 
@@ -224,7 +217,7 @@ namespace RoboBlocos
         /// <param name="project">Projeto a ser excluído</param>
         private async void DeleteProject(ProjectSettings project)
         {
-            var confirmed = await ShowConfirmationDialogAsync("Confirmar exclusão", 
+            var confirmed = await JanelaUtilities.ShowConfirmationDialogAsync(this, "Confirmar exclusão", 
                 $"Deseja realmente excluir o projeto \"{ProjectUtilities.GetProjectDisplayName(project)}\"?\n\nO projeto será movido para a pasta de excluídos e poderá ser recuperado.",
                 "Excluir", "Cancelar");
 
@@ -236,13 +229,13 @@ namespace RoboBlocos
                     
                     if (!success)
                     {
-                        await ShowDialogAsync("Projeto não encontrado", 
+                        await JanelaUtilities.ShowSimpleDialogAsync(this, "Projeto não encontrado", 
                             "O diretório do projeto não foi encontrado. Pode ter sido movido ou excluído anteriormente.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    await ShowDialogAsync("Erro ao excluir", 
+                    await JanelaUtilities.ShowErrorDialogAsync(this, "Erro ao excluir", 
                         $"Não foi possível excluir o projeto: {ex.Message}");
                 }
                 finally

@@ -6,6 +6,7 @@ using RoboBlocos.Models;
 using RoboBlocos.Services;
 using System;
 using System.Threading.Tasks;
+using RoboBlocos.Utilities;
 
 namespace RoboBlocos
 {
@@ -73,11 +74,11 @@ namespace RoboBlocos
                 await ProjectService.SaveProjectAsync(ProjectSettings);
 
                 // Mostra mensagem de sucesso
-                await ShowMessageAsync("Sucesso", "Configurações salvas com sucesso!");
+                await JanelaUtilities.ShowInfoDialogAsync(this, "Sucesso", "Configurações salvas com sucesso!");
             }
             catch (Exception ex)
             {
-                await ShowMessageAsync("Erro", $"Erro ao salvar configurações: {ex.Message}");
+                await JanelaUtilities.ShowErrorDialogAsync(this, "Erro", $"Erro ao salvar configurações: {ex.Message}");
             }
         }
 
@@ -180,26 +181,6 @@ namespace RoboBlocos
 
             // Atualiza o título da janela
             UpdateWindowTitle();
-        }
-
-        /// <summary>
-        /// Exibe uma mensagem ao usuário
-        /// </summary>
-        /// <param name="title">Título da mensagem</param>
-        /// <param name="message">Conteúdo da mensagem</param>
-        private async Task<ContentDialogResult> ShowMessageAsync(string title, string message)
-        {
-            ContentDialog dialog = new ContentDialog
-            {
-                XamlRoot = this.Content.XamlRoot,
-                Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style,
-                Title = title,
-                Content = message,
-                PrimaryButtonText = "OK",
-                DefaultButton = ContentDialogButton.Primary
-            };
-
-            return await dialog.ShowAsync();
         }
     }
 }
