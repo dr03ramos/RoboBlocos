@@ -58,28 +58,22 @@ namespace RoboBlocos
             }
         }
 
-        private async void SaveButton_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Manipula o clique no botão OK - atualiza as configurações e fecha a janela
+        /// </summary>
+        private void OkButton_Click(object sender, RoutedEventArgs e)
         {
-            await SaveProjectAsync();
-        }
-
-        private async Task SaveProjectAsync()
-        {
-            try
+            // Atualiza as configurações do projeto a partir da UI
+            UpdateSettingsFromUI();
+            
+            // Marca o projeto como modificado se estava salvo
+            if (ProjectSettings.State == ProjectState.Saved)
             {
-                // Atualiza as configurações a partir da UI
-                UpdateSettingsFromUI();
-
-                // Salva no arquivo
-                await ProjectService.SaveProjectAsync(ProjectSettings);
-
-                // Mostra mensagem de sucesso
-                await JanelaUtilities.ShowInfoDialogAsync(this, "Sucesso", "Configurações salvas com sucesso!");
+                ProjectSettings.State = ProjectState.Modified;
             }
-            catch (Exception ex)
-            {
-                await JanelaUtilities.ShowErrorDialogAsync(this, "Erro", $"Erro ao salvar configurações: {ex.Message}");
-            }
+            
+            // Fecha a janela
+            this.Close();
         }
 
         /// <summary>

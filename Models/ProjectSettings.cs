@@ -25,6 +25,12 @@ namespace RoboBlocos.Models
 
         [JsonPropertyName("projectPath")]
         public string ProjectPath { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Estado atual do projeto (não salvo no arquivo JSON)
+        /// </summary>
+        [JsonIgnore]
+        public ProjectState State { get; set; } = ProjectState.New;
     }
 
     public class RobotSettings
@@ -61,5 +67,26 @@ namespace RoboBlocos.Models
     {
         Recommended,
         ChooseFile
+    }
+
+    /// <summary>
+    /// Representa o estado atual de um projeto
+    /// </summary>
+    public enum ProjectState
+    {
+        /// <summary>
+        /// Projeto recém criado, ainda não foi salvo nem modificado
+        /// </summary>
+        New,
+        
+        /// <summary>
+        /// Projeto salvo sem modificações pendentes
+        /// </summary>
+        Saved,
+        
+        /// <summary>
+        /// Projeto com modificações não salvas
+        /// </summary>
+        Modified
     }
 }
