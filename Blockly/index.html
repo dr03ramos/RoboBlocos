@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>RoboBlocos - Visual Programming</title>
+    <script src="lib/blockly_compressed.js"></script>
+    <script src="lib/blocks_compressed.js"></script>
+    <script src="lib/javascript_compressed.js"></script>
+    <script src="lib/pt-br.js"></script>
+    <style>
+        body {
+            background-color: #fff;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        #blocklyDiv {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="blocklyDiv"></div>
+
+    <!-- Toolbox Definition -->
+    <xml id="toolbox" style="display: none">
+        <category name="Logic" colour="#5C81A6">
+            <block type="controls_if"></block>
+            <block type="logic_compare"></block>
+            <block type="logic_operation"></block>
+            <block type="logic_negate"></block>
+            <block type="logic_boolean"></block>
+        </category>
+        <category name="Loops" colour="#5CA65C">
+            <block type="controls_repeat_ext">
+                <value name="TIMES">
+                    <shadow type="math_number">
+                        <field name="NUM">10</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="controls_whileUntil"></block>
+            <block type="controls_for">
+                <value name="FROM">
+                    <shadow type="math_number">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+                <value name="TO">
+                    <shadow type="math_number">
+                        <field name="NUM">10</field>
+                    </shadow>
+                </value>
+                <value name="BY">
+                    <shadow type="math_number">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+            </block>
+        </category>
+        <category name="Math" colour="#5C68A6">
+            <block type="math_number"></block>
+            <block type="math_arithmetic">
+                <value name="A">
+                    <shadow type="math_number">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+                <value name="B">
+                    <shadow type="math_number">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="math_single">
+                <value name="NUM">
+                    <shadow type="math_number">
+                        <field name="NUM">9</field>
+                    </shadow>
+                </value>
+            </block>
+        </category>
+        <category name="Text" colour="#5CA68D">
+            <block type="text"></block>
+            <block type="text_print">
+                <value name="TEXT">
+                    <shadow type="text">
+                        <field name="TEXT">abc</field>
+                    </shadow>
+                </value>
+            </block>
+        </category>
+        <category name="Variables" colour="#A65C81" custom="VARIABLE"></category>
+        <category name="Functions" colour="#9A5CA6" custom="PROCEDURE"></category>
+        <category name="Custom Blocks" colour="#FF6680">
+            <block type="robot_move"></block>
+            <block type="robot_turn"></block>
+            <block type="robot_wait"></block>
+        </category>
+    </xml>
+
+    <script src="custom-blocks.js"></script>
+    <script>
+        // Initialize Blockly workspace
+        var workspace = Blockly.inject('blocklyDiv', {
+            toolbox: document.getElementById('toolbox'),
+            grid: {
+                spacing: 25,
+                length: 3,
+                colour: '#ccc',
+                snap: true
+            },
+            zoom: {
+                controls: true,
+                wheel: true,
+                startScale: 1.0,
+                maxScale: 3,
+                minScale: 0.3,
+                scaleSpeed: 1.2
+            },
+            trashcan: true
+        });
+
+        // Notificar C# que o Blockly está pronto
+        console.log('[Blockly] Workspace inicializado e pronto');
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.postMessage(JSON.stringify({
+                type: 'blocklyReady'
+            }));
+        }
+
+        // Generate JavaScript code
+        function generateCode() {
+            javascript.javascriptGenerator.addReservedWords('code');
+            var code = javascript.javascriptGenerator.workspaceToCode(workspace);
+
+            // Send code to C# application
+            if (window.chrome && window.chrome.webview) {
+                console.log('[generateCode] Enviando mensagem para C#: codeGenerated');
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: 'codeGenerated',
+                    code: code
+                }));
+            } else {
+                console.warn('[generateCode] window.chrome.webview não disponível');
+            }
+
+            return code;
+        }
+
+        // Run the generated JavaScript code
+        function runCode() {
+            var code = generateCode();
+            try {
+                eval(code);
+            } catch (e) {
+                alert('Error running code: ' + e);
+            }
+        }
+
+        // Auto-generate code when workspace changes
+        workspace.addChangeListener(function (event) {
+            console.log('[workspace.addChangeListener] Evento:', event.type);
+            
+            if (event.type === Blockly.Events.BLOCK_CHANGE ||
+                event.type === Blockly.Events.BLOCK_CREATE ||
+                event.type === Blockly.Events.BLOCK_DELETE ||
+                event.type === Blockly.Events.BLOCK_MOVE) {
+                
+                console.log('[workspace.addChangeListener] Gerando código e notificando C#...');
+                generateCode();
+            }
+        });
+
+        // Load workspace from XML
+        function loadWorkspaceFromXml(xmlText) {
+            console.log('[loadWorkspaceFromXml] Iniciando carregamento...');
+            console.log('[loadWorkspaceFromXml] XML recebido:', xmlText ? xmlText.substring(0, 100) + '...' : 'vazio');
+            
+            try {
+                // Desabilitar eventos durante o carregamento para evitar marcação como modificado
+                Blockly.Events.disable();
+                
+                workspace.clear();
+                console.log('[loadWorkspaceFromXml] Workspace limpo');
+                
+                if (xmlText && xmlText.trim() !== '') {
+                    console.log('[loadWorkspaceFromXml] Convertendo XML para DOM...');
+                    var xml = Blockly.utils.xml.textToDom(xmlText);
+                    console.log('[loadWorkspaceFromXml] XML convertido, carregando no workspace...');
+                    Blockly.Xml.domToWorkspace(xml, workspace);
+                    console.log('[loadWorkspaceFromXml] Workspace carregado com sucesso!');
+                    console.log('[loadWorkspaceFromXml] Blocos carregados:', workspace.getAllBlocks(false).length);
+                } else {
+                    console.log('[loadWorkspaceFromXml] XML vazio, workspace permanece limpo');
+                }
+                
+                // Reabilitar eventos
+                Blockly.Events.enable();
+                
+                return true;
+            } catch (e) {
+                console.error('[loadWorkspaceFromXml] Erro ao carregar workspace:', e);
+                console.error('[loadWorkspaceFromXml] Stack trace:', e.stack);
+                
+                // Reabilitar eventos mesmo em caso de erro
+                Blockly.Events.enable();
+                
+                return false;
+            }
+        }
+
+        // Function to get generated code (called from C#)
+        function getGeneratedCode() {
+            return generateCode();
+        }
+        
+        console.log('[Blockly] Workspace inicializado e pronto');
+    </script>
+</body>
+</html>

@@ -46,7 +46,7 @@
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
                 <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
-                    <AppBarButton Icon="Download" Label="Exportar"/>
+                    <AppBarButton Icon="Download" Label="Exportar" Click="ExportCodeButton_Click"/>
                     <AppBarButton Icon="Help" Label="Tutoriais">
                     </AppBarButton>
                 </CommandBar>
@@ -62,7 +62,6 @@
 
             <WebView2 x:Name="MyWebView2"
                       Grid.Column="0"
-                      Source="https://example.com/"
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch"
                       MinHeight="400"
