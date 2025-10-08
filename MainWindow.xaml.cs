@@ -35,29 +35,25 @@ namespace RoboBlocos
         /// <summary>
         /// Manipula o clique no botão de novo programa
         /// </summary>
-        private async void NewProgramButton_Click(object sender, RoutedEventArgs e)
+        private void NewProgramButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                // Criar um novo projeto usando o ProjectService
-                var projectSettings = await ProjectService.CreateNewProjectAsync(
+                // Criar um novo projeto sem salvá-lo (estado = New)
+                var projectSettings = ProjectUtilities.CreateDefaultProject(
                     ProjectUtilities.GetUniqueProjectName("Novo Programa"));
+                
+                // Define explicitamente o estado como New
+                projectSettings.State = ProjectState.New;
 
-                if (projectSettings != null)
-                {
-                    // Fechar a janela principal e abrir o IDE
-                    var ide = new IDE(projectSettings);
-                    ide.Activate();
-                    this.Close();
-                }
-                else
-                {
-                    await JanelaUtilities.ShowSimpleDialogAsync(this, "Erro", "Não foi possível criar um novo projeto.");
-                }
+                // Fechar a janela principal e abrir o IDE
+                var ide = new IDE(projectSettings);
+                ide.Activate();
+                this.Close();
             }
             catch (Exception)
             {
-                await JanelaUtilities.ShowSimpleDialogAsync(this, "Erro", "Não foi possível criar um novo projeto.");
+                _ = JanelaUtilities.ShowSimpleDialogAsync(this, "Erro", "Não foi possível criar um novo projeto.");
             }
         }
 
@@ -91,7 +87,7 @@ namespace RoboBlocos
                     return;
                 }
 
-                // Abrir IDE com o projeto
+                // Abrir IDE com o projeto (estado será Saved após LoadProjectAsync)
                 var ide = new IDE(settings);
                 ide.Activate();
                 this.Close();

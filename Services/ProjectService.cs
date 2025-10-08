@@ -45,6 +45,9 @@ namespace RoboBlocos.Services
                 string json = JsonSerializer.Serialize(settings, JsonOptions);
                 await File.WriteAllTextAsync(projectFilePath, json);
 
+                // Atualiza o estado para Saved após salvar com sucesso
+                settings.State = ProjectState.Saved;
+
                 return settings;
             }
             catch (Exception ex)
@@ -156,6 +159,10 @@ namespace RoboBlocos.Services
 
                 // Atualiza o caminho do projeto caso tenha sido movido
                 settings.ProjectPath = projectPath;
+                
+                // Define o estado como Saved ao carregar um projeto existente
+                settings.State = ProjectState.Saved;
+                
                 return settings;
             }
             catch (Exception ex)

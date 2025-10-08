@@ -63,7 +63,7 @@
 
         <Border Grid.Row="3" Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,1,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="24,16">
-                <Button x:Name="btnSave" Content="Salvar" Click="SaveButton_Click" Style="{ThemeResource AccentButtonStyle}" MinWidth="100" />
+                <Button x:Name="btnOk" Content="OK" Click="OkButton_Click" Style="{ThemeResource AccentButtonStyle}" MinWidth="100" />
             </StackPanel>
         </Border>
     </Grid>

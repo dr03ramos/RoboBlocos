@@ -5,6 +5,9 @@ using RoboBlocos.Models;
 using RoboBlocos.Services;
 using System.Threading.Tasks;
 using RoboBlocos.Utilities;
+using Microsoft.Web.WebView2.Core;
+using System.IO;
+using System.Text.Json;
 
 namespace RoboBlocos
 {
@@ -27,6 +30,17 @@ namespace RoboBlocos
 
             CurrentProject = projectSettings;
             UpdateWindowTitle();
+        }
+
+        /// <summary>
+        /// Marca o projeto como modificado
+        /// </summary>
+        private void MarkAsModified()
+        {
+            if (CurrentProject.State == ProjectState.Saved)
+            {
+                CurrentProject.State = ProjectState.Modified;
+            }
         }
 
         /// <summary>
@@ -74,13 +88,28 @@ namespace RoboBlocos
         /// </summary>
         private async void NavViewTitleBar_BackRequested(TitleBar sender, object args)
         {
+            // Se o projeto está salvo, voltar diretamente
+            if (CurrentProject.State == ProjectState.Saved)
+            {
+                GoBackToMainWindow();
+                return;
+            }
+
+            // Se o projeto é novo e nunca foi modificado, voltar sem salvar
+            if (CurrentProject.State == ProjectState.New)
+            {
+                GoBackToMainWindow();
+                return;
+            }
+
+            // Projeto tem modificações, perguntar se deseja salvar
             var result = await JanelaUtilities.ShowSaveBeforeExitDialogAsync(this);
 
             if (result == ContentDialogResult.Primary)
             {
                 try
                 {
-                    await ProjectService.SaveProjectAsync(CurrentProject);
+                    await SaveProjectInternalAsync();
                     GoBackToMainWindow();
                 }
                 catch (Exception ex)
@@ -101,13 +130,22 @@ namespace RoboBlocos
         {
             try
             {
-                await ProjectService.SaveProjectAsync(CurrentProject);
+                await SaveProjectInternalAsync();
                 await JanelaUtilities.ShowInfoDialogAsync(this, "Projeto salvo", "As alterações foram salvas com sucesso.");
             }
             catch (Exception ex)
             {
                 await JanelaUtilities.ShowErrorDialogAsync(this, "Erro ao salvar", $"Não foi possível salvar o projeto: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Salva o projeto e atualiza seu estado para Saved
+        /// </summary>
+        private async Task SaveProjectInternalAsync()
+        {
+            await ProjectService.SaveProjectAsync(CurrentProject);
+            CurrentProject.State = ProjectState.Saved;
         }
 
         /// <summary>
@@ -137,6 +175,9 @@ namespace RoboBlocos
 
             CurrentProject = updated;
             UpdateWindowTitle();
+            
+            // Renomear marca o projeto como modificado (mudança foi salva pelo RenameProjectAsync)
+            CurrentProject.State = ProjectState.Saved;
         }
 
         /// <summary>
