@@ -11,6 +11,7 @@ namespace RoboBlocos.Services
     public class ProjectService
     {
         private const string PROJECT_FILE_NAME = "project.json";
+        private const string WORKSPACE_FILE_NAME = "workspace.xml";
 
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
@@ -360,6 +361,57 @@ namespace RoboBlocos.Services
             catch
             {
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Salva o XML do workspace do Blockly
+        /// </summary>
+        /// <param name="settings">Configurações do projeto</param>
+        /// <param name="xmlContent">Conteúdo XML do workspace</param>
+        /// <exception cref="InvalidOperationException">Lançada quando não é possível salvar o workspace</exception>
+        public static async Task SaveWorkspaceXmlAsync(ProjectSettings settings, string xmlContent)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(settings.ProjectPath))
+                    throw new InvalidOperationException("Caminho do projeto não definido");
+
+                // Garante que o diretório existe
+                Directory.CreateDirectory(settings.ProjectPath);
+
+                string workspaceFilePath = Path.Combine(settings.ProjectPath, WORKSPACE_FILE_NAME);
+                await File.WriteAllTextAsync(workspaceFilePath, xmlContent ?? string.Empty);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Falha ao salvar o workspace: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Carrega o XML do workspace do Blockly
+        /// </summary>
+        /// <param name="settings">Configurações do projeto</param>
+        /// <returns>Conteúdo XML do workspace ou string vazia se não existir</returns>
+        public static async Task<string> LoadWorkspaceXmlAsync(ProjectSettings settings)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(settings.ProjectPath))
+                    return string.Empty;
+
+                string workspaceFilePath = Path.Combine(settings.ProjectPath, WORKSPACE_FILE_NAME);
+                
+                if (!File.Exists(workspaceFilePath))
+                    return string.Empty; // Workspace vazio para projetos novos
+
+                return await File.ReadAllTextAsync(workspaceFilePath);
+            }
+            catch
+            {
+                // Em caso de erro na leitura, retornar workspace vazio
+                return string.Empty;
             }
         }
     }
