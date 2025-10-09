@@ -9,6 +9,7 @@ using Microsoft.Web.WebView2.Core;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.UI.Windowing;
 
 namespace RoboBlocos
 {
@@ -28,6 +29,12 @@ namespace RoboBlocos
             InitializeComponent();
 
             this.ExtendsContentIntoTitleBar = true;
+
+            OverlappedPresenter presenter = OverlappedPresenter.Create();
+            presenter.PreferredMinimumWidth = 1024;
+            presenter.PreferredMinimumHeight = 768;
+
+            AppWindow.SetPresenter(presenter);
 
             CurrentProject = projectSettings;
             UpdateWindowTitle();
