@@ -2,6 +2,7 @@ using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.Threading.Tasks;
+using RoboBlocos.Models;
 
 namespace RoboBlocos.Utilities
 {
@@ -142,6 +143,21 @@ namespace RoboBlocos.Utilities
                 XamlRoot = window.Content.XamlRoot
             };
             return await dialog.ShowAsync();
+        }
+
+        /// <summary>
+        /// Exibe um diálogo de configurações usando o SettingsEditor personalizado.
+        /// </summary>
+        /// <param name="window">A janela à qual o diálogo estará associado (para XamlRoot).</param>
+        /// <param name="projectSettings">As configurações do projeto a serem editadas.</param>
+        /// <returns>As configurações atualizadas se foram salvas (OK clicado), ou as configurações originais se cancelado.</returns>
+        public static async Task<ProjectSettings> ShowSettingsDialogAsync(Window window, ProjectSettings projectSettings)
+        {
+            var settingsEditor = new SettingsEditor(projectSettings);
+            settingsEditor.XamlRoot = window.Content.XamlRoot;
+            
+            var result = await settingsEditor.ShowAsync();
+            return result == ContentDialogResult.Primary ? settingsEditor.ProjectSettings : projectSettings;
         }
     }
 }

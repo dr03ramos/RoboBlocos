@@ -351,10 +351,14 @@ namespace RoboBlocos
         /// <summary>
         /// Manipula o clique no botão de configurações do robô
         /// </summary>
-        private void RobotSettingsButton_Click(object sender, RoutedEventArgs e)
+        private async void RobotSettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            var settingsEditor = new SettingsEditor(CurrentProject);
-            settingsEditor.Activate();
+            var updatedSettings = await JanelaUtilities.ShowSettingsDialogAsync(this, CurrentProject);
+            
+            // Sempre atualizar CurrentProject - será as configurações modificadas (OK) ou as originais (Cancelar)
+            CurrentProject = updatedSettings;
+            
+            System.Diagnostics.Debug.WriteLine("Diálogo de configurações fechado");
         }
 
         /// <summary>

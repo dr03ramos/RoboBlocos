@@ -1,19 +1,14 @@
-using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Windows.Graphics;
 using RoboBlocos.Models;
-using RoboBlocos.Services;
 using System;
-using System.Threading.Tasks;
-using RoboBlocos.Utilities;
 
 namespace RoboBlocos
 {
     /// <summary>
-    /// Janela de edição de configurações do projeto
+    /// Dialog de edição de configurações do projeto
     /// </summary>
-    public sealed partial class SettingsEditor : Window
+    public sealed partial class SettingsEditor : ContentDialog
     {
         public ProjectSettings ProjectSettings { get; private set; }
 
@@ -25,43 +20,18 @@ namespace RoboBlocos
         {
             InitializeComponent();
 
-            this.ExtendsContentIntoTitleBar = true;
-
-            // Define o tamanho da janela
-            AppWindow.Resize(new SizeInt32(450, 850));
-
-            OverlappedPresenter presenter = OverlappedPresenter.Create();
-            presenter.IsMaximizable = false;
-            presenter.IsMinimizable = false;
-            presenter.IsResizable = false;
-
-            AppWindow.SetPresenter(presenter);
-
             // Inicializa as configurações do projeto
             ProjectSettings = projectSettings;
 
-            // Atualiza o título da janela
-            UpdateWindowTitle();
+            // Configura os manipuladores de eventos para os botões
+            this.PrimaryButtonClick += SettingsEditor_PrimaryButtonClick;
+            this.SecondaryButtonClick += SettingsEditor_SecondaryButtonClick;
 
-            // Atualiza a UI a partir das configurações
-            this.Activated += (s, e) =>
-            {
-                UpdateUIFromSettings();
-            };
+            // Atualiza a UI a partir das configurações quando carregado
+            this.Loaded += (s, e) => UpdateUIFromSettings();
         }
 
-        private void UpdateWindowTitle()
-        {
-            if (IDETitleBar != null)
-            {
-                IDETitleBar.Title = $"RoboBlocos: {ProjectSettings.ProjectName}";
-            }
-        }
-
-        /// <summary>
-        /// Manipula o clique no botão OK - atualiza as configurações e fecha a janela
-        /// </summary>
-        private void OkButton_Click(object sender, RoutedEventArgs e)
+        private void SettingsEditor_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             // Atualiza as configurações do projeto a partir da UI
             UpdateSettingsFromUI();
@@ -72,8 +42,13 @@ namespace RoboBlocos
                 ProjectSettings.State = ProjectState.Modified;
             }
             
-            // Fecha a janela
-            this.Close();
+            // Dialog fecha automaticamente
+        }
+
+        private void SettingsEditor_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            // Cancelar - não há mudanças necessárias
+            // Dialog fecha automaticamente
         }
 
         /// <summary>
@@ -81,7 +56,6 @@ namespace RoboBlocos
         /// </summary>
         private void UpdateSettingsFromUI()
         {
-            // Atualiza a partir dos controles da UI
             // Configurações do Robô
             if (cmbModel?.SelectedItem is ComboBoxItem modelItem)
             {
@@ -172,9 +146,6 @@ namespace RoboBlocos
             {
                 chkLogErrors.IsChecked = ProjectSettings.LoggingSettings.LogCompilationErrors;
             }
-
-            // Atualiza o título da janela
-            UpdateWindowTitle();
         }
     }
 }
