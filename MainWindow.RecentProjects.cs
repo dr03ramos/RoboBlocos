@@ -186,7 +186,6 @@ namespace RoboBlocos
                     await JanelaUtilities.ShowSimpleDialogAsync(this, "Projeto não encontrado", 
                         "O projeto selecionado não foi encontrado. Pode ter sido movido ou excluído.");
                     
-                    // Recarregar a lista de projetos
                     LoadRecentProjects();
                     return;
                 }
@@ -195,9 +194,15 @@ namespace RoboBlocos
                 var success = await ProjectService.OpenProjectAsync(project);
                 if (success)
                 {
+                    // Capturar bounds da janela atual antes de fechar
+                    var bounds = TamanhoJanelaUtilities.CaptureWindowBounds(this);
+
                     // Fechar a janela principal e abrir o IDE
                     var ide = new IDE(project);
-                    ide.Activate();
+                    
+                    // Aplicar os bounds capturados ao IDE
+                    TamanhoJanelaUtilities.ApplyWindowBounds(ide, bounds);
+                    
                     this.Close();
                 }
                 else
@@ -240,7 +245,6 @@ namespace RoboBlocos
                 }
                 finally
                 {
-                    // Recarregar a lista independentemente do resultado
                     LoadRecentProjects();
                 }
             }

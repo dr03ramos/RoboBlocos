@@ -46,9 +46,15 @@ namespace RoboBlocos
                 // Define explicitamente o estado como New
                 projectSettings.State = ProjectState.New;
 
+                // Capturar bounds da janela atual antes de fechar
+                var bounds = TamanhoJanelaUtilities.CaptureWindowBounds(this);
+
                 // Fechar a janela principal e abrir o IDE
                 var ide = new IDE(projectSettings);
-                ide.Activate();
+                
+                // Aplicar os bounds capturados ao IDE
+                TamanhoJanelaUtilities.ApplyWindowBounds(ide, bounds);
+                
                 this.Close();
             }
             catch (Exception)
@@ -87,9 +93,15 @@ namespace RoboBlocos
                     return;
                 }
 
+                // Capturar bounds da janela atual antes de fechar
+                var bounds = TamanhoJanelaUtilities.CaptureWindowBounds(this);
+
                 // Abrir IDE com o projeto (estado será Saved após LoadProjectAsync)
                 var ide = new IDE(settings);
-                ide.Activate();
+                
+                // Aplicar os bounds capturados ao IDE
+                TamanhoJanelaUtilities.ApplyWindowBounds(ide, bounds);
+                
                 this.Close();
             }
             catch (Exception)

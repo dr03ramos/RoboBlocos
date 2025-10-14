@@ -20,13 +20,25 @@ namespace RoboBlocos
     {
         public ProjectSettings CurrentProject { get; private set; }
 
-        public IDE() : this(new ProjectSettings())
-        {
-        }
+        /// <summary>
+        /// Indica se o Blockly está pronto para uso.
+        /// </summary>
+        private bool _blocklyReady = false;
 
+        /// <summary>
+        /// Indica se o workspace já foi carregado.
+        /// </summary>
+        private bool _workspaceLoaded = false;
+
+        /// <summary>
+        /// Inicializa uma nova instância da classe IDE com configurações específicas do projeto.
+        /// </summary>
+        /// <param name="projectSettings">As configurações do projeto a serem usadas.</param>
         public IDE(ProjectSettings projectSettings)
         {
             InitializeComponent();
+
+            this.AppWindow.Closing += IDE_Closing;
 
             this.ExtendsContentIntoTitleBar = true;
 
@@ -39,10 +51,12 @@ namespace RoboBlocos
             CurrentProject = projectSettings;
             UpdateWindowTitle();
 
-            // Inicializa o WebView2 para carregar conteúdo local e comunicação bidirecional
             _ = InitializeWebViewAsync();
         }
 
+        /// <summary>
+        /// Inicializa o WebView2 para carregar o conteúdo do Blockly e configurar a comunicação entre o C# e o JavaScript
+        /// </summary>
         private async Task InitializeWebViewAsync()
         {
             try
@@ -126,9 +140,11 @@ namespace RoboBlocos
             }
         }
 
-        private bool _blocklyReady = false;
-        private bool _workspaceLoaded = false;
-
+        /// <summary>
+        /// Manipula mensagens recebidas do JavaScript via WebView2.
+        /// </summary>
+        /// <param name="sender">O objeto que enviou o evento.</param>
+        /// <param name="e">Argumentos do evento de mensagem recebida.</param>
         private async void OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             try
@@ -205,6 +221,44 @@ namespace RoboBlocos
         }
 
         /// <summary>
+        /// Manipula a lógica de saída, solicitando salvar se modificado
+        /// </summary>
+        /// <returns>Verdadeiro se deve prosseguir com a saída, falso caso contrário</returns>
+        private async Task<bool> HandleExitAsync()
+        {
+            if (CurrentProject.State == ProjectState.Saved)
+            {
+                return true;
+            }
+            if (CurrentProject.State == ProjectState.New)
+            {
+                return true;
+            }
+            var result = await JanelaUtilities.ShowSaveBeforeExitDialogAsync(this);
+            if (result == ContentDialogResult.Primary)
+            {
+                try
+                {
+                    await SaveProjectInternalAsync();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    await JanelaUtilities.ShowErrorDialogAsync(this, "Erro ao salvar", $"Não foi possível salvar o projeto: {ex.Message}");
+                    return false;
+                }
+            }
+            else if (result == ContentDialogResult.Secondary)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Cria uma nova instância do IDE com um projeto específico
         /// </summary>
         /// <param name="projectPath">Caminho para o arquivo de projeto</param>
@@ -238,38 +292,25 @@ namespace RoboBlocos
         /// </summary>
         private async void NavViewTitleBar_BackRequested(TitleBar sender, object args)
         {
-            // Se o projeto está salvo, voltar diretamente
-            if (CurrentProject.State == ProjectState.Saved)
+            if (await HandleExitAsync())
             {
                 GoBackToMainWindow();
-                return;
             }
+        }
 
-            // Se o projeto é novo e nunca foi modificado, voltar sem salvar
-            if (CurrentProject.State == ProjectState.New)
+        /// <summary>
+        /// Manipula o evento de fechamento da janela (ex.: via botão X)
+        /// </summary>
+        private async void IDE_Closing(AppWindow sender, AppWindowClosingEventArgs e)
+        {
+            e.Cancel = true;
+            if (await HandleExitAsync())
             {
-                GoBackToMainWindow();
-                return;
-            }
-
-            // Projeto tem modificações, perguntar se deseja salvar
-            var result = await JanelaUtilities.ShowSaveBeforeExitDialogAsync(this);
-
-            if (result == ContentDialogResult.Primary)
-            {
-                try
-                {
-                    await SaveProjectInternalAsync();
-                    GoBackToMainWindow();
-                }
-                catch (Exception ex)
-                {
-                    await JanelaUtilities.ShowErrorDialogAsync(this, "Erro ao salvar", $"Não foi possível salvar o projeto: {ex.Message}");
-                }
-            }
-            else if (result == ContentDialogResult.Secondary)
-            {
-                GoBackToMainWindow();
+                // Prosseguir com o fechamento e abrir MainWindow
+                var bounds = TamanhoJanelaUtilities.CaptureWindowBounds(this);
+                var mainWindow = new MainWindow();
+                TamanhoJanelaUtilities.ApplyWindowBounds(mainWindow, bounds);
+                this.Close();
             }
         }
 
@@ -296,7 +337,7 @@ namespace RoboBlocos
         {
             try
             {
-                // Primeiro, obter o XML do workspace atual
+                // Primeiro, obter o XML do workspace atual do Blockly
                 var workspaceXml = await GetWorkspaceXmlFromJavaScriptAsync();
 
                 // Salvar o workspace XML
@@ -350,8 +391,14 @@ namespace RoboBlocos
         /// </summary>
         private void GoBackToMainWindow()
         {
+            // Capturar bounds da janela IDE atual antes de fechar
+            var bounds = TamanhoJanelaUtilities.CaptureWindowBounds(this);
+
             var mainWindow = new MainWindow();
-            mainWindow.Activate();
+            
+            // Aplicar os bounds capturados à MainWindow
+            TamanhoJanelaUtilities.ApplyWindowBounds(mainWindow, bounds);
+            
             this.Close();
         }
 
@@ -460,7 +507,6 @@ namespace RoboBlocos
                 // O resultado vem como string JSON, precisamos deserializar
                 if (!string.IsNullOrEmpty(result) && result != "null" && result != "\"\"")
                 {
-                    // Remover aspas do JSON
                     return JsonSerializer.Deserialize<string>(result) ?? string.Empty;
                 }
 
@@ -519,7 +565,6 @@ namespace RoboBlocos
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[LoadWorkspace] Erro ao carregar workspace: {ex.Message}");
-                // Não mostrar erro ao usuário, apenas continuar com workspace vazio
             }
         }
 
@@ -546,10 +591,9 @@ namespace RoboBlocos
                         }
                     })()");
 
-                // O resultado vem como string JSON, precisamos deserializar
+                // O resultado vem como string JSON, então deserializa
                 if (!string.IsNullOrEmpty(result) && result != "null" && result != "\"\"")
                 {
-                    // Remover aspas do JSON
                     return JsonSerializer.Deserialize<string>(result) ?? string.Empty;
                 }
 
