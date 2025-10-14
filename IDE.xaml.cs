@@ -337,14 +337,10 @@ namespace RoboBlocos
         {
             try
             {
-                // Primeiro, obter o XML do workspace atual do Blockly
-                var workspaceXml = await GetWorkspaceXmlFromJavaScriptAsync();
-
-                // Salvar o workspace XML
-                await ProjectService.SaveWorkspaceXmlAsync(CurrentProject, workspaceXml);
-
-                // Salvar as configurações do projeto
                 await ProjectService.SaveProjectAsync(CurrentProject);
+
+                var workspaceXml = await GetWorkspaceXmlFromJavaScriptAsync();
+                await ProjectService.SaveWorkspaceXmlAsync(CurrentProject, workspaceXml);
 
                 CurrentProject.State = ProjectState.Saved;
             }
