@@ -616,5 +616,18 @@ namespace RoboBlocos
             [JsonPropertyName("code")]
             public string? Code { get; set; }
         }
+
+        /// <summary>
+        /// Manipula a mudança de seleção no SelectorBar de nomenclatura
+        /// </summary>
+        private void NomenclatureSelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
+        {
+            var selectedItem = sender.SelectedItem as SelectorBarItem;
+            if (selectedItem != null)
+            {
+                string nomenclatura = selectedItem.Text;
+                System.Diagnostics.Debug.WriteLine($"[NomenclatureSelectorBar] Nomenclatura selecionada: {nomenclatura}");
+            }
+        }
     }
 }

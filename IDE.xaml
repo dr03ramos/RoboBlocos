@@ -44,6 +44,28 @@
                 </Button>
             </StackPanel>
 
+            <controls:SelectorBar x:Name="NomenclatureSelectorBar" 
+                                  Grid.Column="1" 
+                                  HorizontalAlignment="Center" 
+                                  VerticalAlignment="Center"
+                                  SelectionChanged="NomenclatureSelectorBar_SelectionChanged">
+                <controls:SelectorBarItem x:Name="SelectorBarItemIniciante" 
+                                          Text="Iniciante" 
+                                          ToolTipService.ToolTip="Nomenclatura voltada a iniciantes"
+                                          IsSelected="True">
+                    <controls:SelectorBarItem.Icon>
+                        <FontIcon Glyph="&#xE77B;" />
+                    </controls:SelectorBarItem.Icon>
+                </controls:SelectorBarItem>
+                <controls:SelectorBarItem x:Name="SelectorBarItemTecnico" 
+                                          Text="Técnico" 
+                                          ToolTipService.ToolTip="Nomenclatura voltada a técnicos">
+                    <controls:SelectorBarItem.Icon>
+                        <FontIcon Glyph="&#xE7F8;" />
+                    </controls:SelectorBarItem.Icon>
+                </controls:SelectorBarItem>
+            </controls:SelectorBar>
+
             <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
                 <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
                     <AppBarButton Icon="Download" Label="Exportar" Click="ExportCodeButton_Click"/>
