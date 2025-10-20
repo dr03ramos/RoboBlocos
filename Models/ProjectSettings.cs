@@ -58,10 +58,13 @@ namespace RoboBlocos.Models
     public class LoggingSettings
     {
         [JsonPropertyName("logFirmwareDownload")]
-        public bool LogFirmwareDownload { get; set; } = true;
+        public bool LogFirmwareDownload { get; set; } = false;
 
-        [JsonPropertyName("logCompilationErrors")]
-        public bool LogCompilationErrors { get; set; } = false;
+        [JsonPropertyName("logInterface")]
+        public bool LogInterface { get; set; } = true;
+
+        [JsonPropertyName("logMandatory")]
+        public bool LogMandatory { get; set; } = true;
     }
 
     public enum FirmwareOption

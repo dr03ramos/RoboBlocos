@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:RoboBlocos"
     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    xmlns:models="using:RoboBlocos.Models"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -95,41 +96,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 
-                <StackPanel Grid.Row="0" VerticalAlignment="Bottom" Spacing="8">
-                    <controls:InfoBar
-                        IsOpen="True"
-                        IsIconVisible="True"
-                        IsClosable="False"
-                        Severity="Informational"
-                        Message="Download de firmware iniciado...                                  RCX 2.0 na porta COM3"/>
-
-                    <controls:InfoBar
-                        IsOpen="True"
-                        IsIconVisible="True"
-                        IsClosable="False"
-                        Severity="Success"
-                        Message="Download de firmware concluído com sucesso." />
-
-                    <controls:InfoBar
-                        IsOpen="True"
-                        IsIconVisible="True"
-                        IsClosable="False"
-                        Severity="Success"
-                        Message="Compilação concluída às 21:38." />
-
-                    <controls:InfoBar
-                        IsOpen="True"
-                        IsIconVisible="True"
-                        IsClosable="False"
-                        Severity="Informational"
-                        Message="Enviando programa compilado ao robô...                                  RCX 2.0 na porta COM3" />
-
-                    <controls:InfoBar
-                        IsOpen="True"
-                        IsIconVisible="True"
-                        IsClosable="False"
-                        Severity="Error"
-                        Message="Não foi possível enviar o programa ao robô. Tente colocar ele mais perto do sensor." />
+                <StackPanel x:Name="LogStackPanel" Grid.Row="0" VerticalAlignment="Bottom" Spacing="8">
                 </StackPanel>
 
                 <StackPanel Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Spacing="12" Margin="0,24,0,0">

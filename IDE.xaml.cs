@@ -10,6 +10,8 @@ using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.UI.Windowing;
+using System.Diagnostics;
+using Microsoft.UI.Xaml.Media.Animation;
 
 namespace RoboBlocos
 {
@@ -627,7 +629,79 @@ namespace RoboBlocos
             {
                 string nomenclatura = selectedItem.Text;
                 System.Diagnostics.Debug.WriteLine($"[NomenclatureSelectorBar] Nomenclatura selecionada: {nomenclatura}");
+
+                // Adicionar log para mudança de nomenclatura
+                AddLog($"Alteração de nomenclatura para {nomenclatura}.", LogSeverity.Informational, LogCategory.Interface);
             }
+        }
+
+        /// <summary>
+        /// Adiciona um registro de log à tela, se habilitado nas configurações
+        /// </summary>
+        private void AddLog(string message, LogSeverity severity, LogCategory category)
+        {
+            // Verificar se o log deve ser exibido baseado nas configurações
+            bool shouldLog = category switch
+            {
+                LogCategory.FirmwareDownload => CurrentProject.LoggingSettings.LogFirmwareDownload,
+                LogCategory.Interface => CurrentProject.LoggingSettings.LogInterface,
+                LogCategory.Obrigatórios => CurrentProject.LoggingSettings.LogMandatory,
+                _ => false
+            };
+
+            if (!shouldLog)
+                return;
+
+            // Criar InfoBar
+            var infoBar = new InfoBar
+            {
+                IsOpen = true,
+                IsIconVisible = true,
+                IsClosable = false,
+                Severity = severity switch
+                {
+                    LogSeverity.Informational => InfoBarSeverity.Informational,
+                    LogSeverity.Success => InfoBarSeverity.Success,
+                    LogSeverity.Error => InfoBarSeverity.Error,
+                    _ => InfoBarSeverity.Informational
+                },
+                Message = message
+            };
+
+            // Adicionar ao StackPanel
+            LogStackPanel.Children.Add(infoBar);
+
+            // Configurar timer para remover após 5 segundos
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
+            timer.Tick += (s, e) =>
+            {
+                var storyboard = new Storyboard();
+                var fadeOut = new DoubleAnimation
+                {
+                    From = 1.0,
+                    To = 0.0,
+                    Duration = TimeSpan.FromSeconds(0.5),
+                    EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
+                };
+                Storyboard.SetTarget(fadeOut, infoBar);
+                Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                storyboard.Children.Add(fadeOut);
+                storyboard.Completed += (sender, args) =>
+                {
+                    LogStackPanel.Children.Remove(infoBar);
+                    timer.Stop();
+                };
+                storyboard.Begin();
+            };
+            timer.Start();
+        }
+
+        /// <summary>
+        /// Adiciona um registro de log à tela, se habilitado nas configurações
+        /// </summary>
+        private void AddLog(string message, string substring, LogSeverity severity, LogCategory category)
+        {
+            AddLog(message + new string(' ', 80) + substring, severity, category);
         }
     }
 }

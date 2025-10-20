@@ -64,8 +64,9 @@
                 <StackPanel Orientation="Vertical" Spacing="12">
                     <TextBlock Text="Registros" FontSize="16" FontWeight="SemiBold" />
 
-                    <CheckBox x:Name="chkLogFirmware" Content="Download de firmware" IsChecked="True" />
-                    <CheckBox x:Name="chkLogErrors" Content="Erros de compilação" />
+                    <CheckBox x:Name="chkLogMandatory" Content="Obrigatórios" IsEnabled="False" />
+                    <CheckBox x:Name="chkLogFirmware" Content="Download de firmware" />
+                    <CheckBox x:Name="chkLogInterface" Content="Informações da interface" />
                 </StackPanel>
             </StackPanel>
         </Grid>

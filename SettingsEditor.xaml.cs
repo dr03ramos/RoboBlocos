@@ -88,9 +88,14 @@ namespace RoboBlocos
                 ProjectSettings.LoggingSettings.LogFirmwareDownload = chkLogFirmware.IsChecked == true;
             }
 
-            if (chkLogErrors != null)
+            if (chkLogInterface != null)
             {
-                ProjectSettings.LoggingSettings.LogCompilationErrors = chkLogErrors.IsChecked == true;
+                ProjectSettings.LoggingSettings.LogInterface = chkLogInterface.IsChecked == true;
+            }
+
+            if (chkLogMandatory != null)
+            {
+                ProjectSettings.LoggingSettings.LogMandatory = chkLogMandatory.IsChecked == true;
             }
         }
 
@@ -142,9 +147,14 @@ namespace RoboBlocos
                 chkLogFirmware.IsChecked = ProjectSettings.LoggingSettings.LogFirmwareDownload;
             }
 
-            if (chkLogErrors != null)
+            if (chkLogInterface != null)
             {
-                chkLogErrors.IsChecked = ProjectSettings.LoggingSettings.LogCompilationErrors;
+                chkLogInterface.IsChecked = ProjectSettings.LoggingSettings.LogInterface;
+            }
+
+            if (chkLogMandatory != null)
+            {
+                chkLogMandatory.IsChecked = ProjectSettings.LoggingSettings.LogMandatory;
             }
         }
     }
