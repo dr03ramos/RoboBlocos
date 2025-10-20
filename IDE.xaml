@@ -114,7 +114,7 @@
                         </StackPanel>
                     </Button>
                     
-                    <Button ToolTipService.ToolTip="Enviar programa para o robô" HorizontalAlignment="Right" Style="{StaticResource AccentButtonStyle}">
+                    <Button x:Name="SendToRobotButton" ToolTipService.ToolTip="Enviar programa para o robô" HorizontalAlignment="Right" Style="{StaticResource AccentButtonStyle}" Click="SendToRobotButton_Click">
                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <FontIcon Glyph="&#xE724;" />
                             <TextBlock Text="Enviar para o robô" VerticalAlignment="Center" />

@@ -33,6 +33,11 @@ namespace RoboBlocos
         private bool _workspaceLoaded = false;
 
         /// <summary>
+        /// Indica se a nomenclatura foi inicializada (para evitar log na primeira seleção)
+        /// </summary>
+        private bool _nomenclatureInitialized = false;
+
+        /// <summary>
         /// Inicializa uma nova instância da classe IDE com configurações específicas do projeto.
         /// </summary>
         /// <param name="projectSettings">As configurações do projeto a serem usadas.</param>
@@ -429,12 +434,39 @@ namespace RoboBlocos
                     return;
                 }
 
+                // Adicionar log de sucesso
+                AddLog("Código gerado com sucesso", LogSeverity.Success, LogCategory.Obrigatórios);
+
                 // Exibir o código gerado em um diálogo
                 await ShowGeneratedCodeDialogAsync(generatedCode);
             }
             catch (Exception ex)
             {
                 await JanelaUtilities.ShowErrorDialogAsync(this, "Erro ao exportar", $"Não foi possível exportar o código: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Manipula o clique no botão de enviar para o robô
+        /// </summary>
+        private async void SendToRobotButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Log 1: Tentando conectar ao robô
+                string robotModel = CurrentProject.RobotSettings.Model;
+                string serialPort = CurrentProject.ConnectionSettings.SerialPort;
+                AddLog($"Tentando conectar ao robô... {robotModel} na porta {serialPort}...", LogSeverity.Informational, LogCategory.Obrigatórios);
+
+                // Simular tentativa de conexão (aguardar um momento)
+                await Task.Delay(1000);
+
+                // Log 2: Não foi possível conectar
+                AddLog("Não foi possível conectar ao robô. Tente colocá-lo mais perto do sensor.", LogSeverity.Error, LogCategory.Obrigatórios);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erro ao enviar para o robô: {ex.Message}");
             }
         }
 
@@ -630,8 +662,15 @@ namespace RoboBlocos
                 string nomenclatura = selectedItem.Text;
                 System.Diagnostics.Debug.WriteLine($"[NomenclatureSelectorBar] Nomenclatura selecionada: {nomenclatura}");
 
-                // Adicionar log para mudança de nomenclatura
-                AddLog($"Alteração de nomenclatura para {nomenclatura}.", LogSeverity.Informational, LogCategory.Interface);
+                // Só adicionar log após a inicialização (não na primeira seleção)
+                if (_nomenclatureInitialized)
+                {
+                    AddLog($"Alteração de nomenclatura para {nomenclatura}.", LogSeverity.Informational, LogCategory.Interface);
+                }
+                else
+                {
+                    _nomenclatureInitialized = true;
+                }
             }
         }
 
@@ -671,8 +710,8 @@ namespace RoboBlocos
             // Adicionar ao StackPanel
             LogStackPanel.Children.Add(infoBar);
 
-            // Configurar timer para remover após 5 segundos
-            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
+            // Configurar timer para remover após 8 segundos
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(8) };
             timer.Tick += (s, e) =>
             {
                 var storyboard = new Storyboard();
