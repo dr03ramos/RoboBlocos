@@ -5,8 +5,7 @@
     <title>RoboBlocos - Visual Programming</title>
     <script src="lib/blockly_compressed.js"></script>
     <script src="lib/blocks_compressed.js"></script>
-    <script src="lib/javascript_compressed.js"></script>
-    <script src="lib/pt-br.js"></script>
+    <script src="custom/nqc-generator.js"></script>
     <style>
         body {
             background-color: #fff;
@@ -26,86 +25,70 @@
 <body>
     <div id="blocklyDiv"></div>
 
-    <!-- Toolbox Definition -->
     <xml id="toolbox" style="display: none">
-        <category name="Logic" colour="#5C81A6">
-            <block type="controls_if"></block>
-            <block type="logic_compare"></block>
-            <block type="logic_operation"></block>
-            <block type="logic_negate"></block>
-            <block type="logic_boolean"></block>
+        <category name="Motores" colour="160">
+            <block type="nqc_ligar_motor_com_potencia"></block>
+            <block type="nqc_ligar_motor"></block>
+            <block type="nqc_define_potencia_percent"></block>
+            <block type="nqc_define_sentido"></block>
+            <block type="nqc_toca_som"></block>
         </category>
-        <category name="Loops" colour="#5CA65C">
-            <block type="controls_repeat_ext">
+        <category name="Sensores" colour="200">
+            <block type="nqc_define_sensor_toque"></block>
+            <block type="nqc_define_sensor_luz"></block>
+            <block type="nqc_define_sensor_rotacao"></block>
+            <block type="nqc_valor_sensor_toque"></block>
+            <block type="nqc_valor_sensor_luz"></block>
+            <block type="nqc_valor_sensor_rotacao"></block>
+        </category>
+        <category name="Controles" colour="120">
+            <block type="nqc_espera_segundos">
+                <value name="SECONDS">
+                    <shadow type="nqc_numero">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="nqc_espera_ate_que"></block>
+            <block type="nqc_repita_vezes">
                 <value name="TIMES">
-                    <shadow type="math_number">
+                    <shadow type="nqc_numero">
                         <field name="NUM">10</field>
                     </shadow>
                 </value>
             </block>
-            <block type="controls_whileUntil"></block>
-            <block type="controls_for">
-                <value name="FROM">
-                    <shadow type="math_number">
-                        <field name="NUM">1</field>
-                    </shadow>
-                </value>
-                <value name="TO">
-                    <shadow type="math_number">
-                        <field name="NUM">10</field>
-                    </shadow>
-                </value>
-                <value name="BY">
-                    <shadow type="math_number">
-                        <field name="NUM">1</field>
-                    </shadow>
-                </value>
-            </block>
+            <block type="nqc_repita_infinitamente"></block>
+            <block type="nqc_repita_ate_que"></block>
         </category>
-        <category name="Math" colour="#5C68A6">
-            <block type="math_number"></block>
-            <block type="math_arithmetic">
-                <value name="A">
-                    <shadow type="math_number">
-                        <field name="NUM">1</field>
-                    </shadow>
-                </value>
-                <value name="B">
-                    <shadow type="math_number">
-                        <field name="NUM">1</field>
-                    </shadow>
-                </value>
-            </block>
-            <block type="math_single">
-                <value name="NUM">
-                    <shadow type="math_number">
-                        <field name="NUM">9</field>
-                    </shadow>
-                </value>
-            </block>
+        <category name="Variáveis" colour="330">
+            <block type="nqc_variavel_recebe"></block>
+            <block type="nqc_valor_variavel"></block>
         </category>
-        <category name="Text" colour="#5CA68D">
-            <block type="text"></block>
-            <block type="text_print">
-                <value name="TEXT">
-                    <shadow type="text">
-                        <field name="TEXT">abc</field>
-                    </shadow>
-                </value>
+        <category name="Matemática" colour="230">
+            <block type="nqc_numero">
+                <field name="NUM">0</field>
             </block>
+            <block type="nqc_operacao_matematica"></block>
         </category>
-        <category name="Variables" colour="#A65C81" custom="VARIABLE"></category>
-        <category name="Functions" colour="#9A5CA6" custom="PROCEDURE"></category>
-        <category name="Custom Blocks" colour="#FF6680">
-            <block type="robot_move"></block>
-            <block type="robot_turn"></block>
-            <block type="robot_wait"></block>
+        <category name="Lógica" colour="210">
+            <block type="nqc_comparacao"></block>
+            <block type="nqc_operacao_logica"></block>
+            <block type="nqc_contrario"></block>
+            <block type="nqc_booleano"></block>
+        </category>
+        <category name="Condicionais" colour="290">
+            <block type="nqc_se_faca"></block>
+            <block type="nqc_se_faca_senao"></block>
+        </category>
+        <category name="Tarefas" colour="180">
+            <block type="nqc_tarefa_principal"></block>
+            <block type="nqc_tarefa_nomeada"></block>
         </category>
     </xml>
 
-    <script src="custom-blocks.js"></script>
+    <script src="custom/nqc-blocks.js"></script>
     <script>
-        // Initialize Blockly workspace
+        // Inicializar workspace do Blockly
         var workspace = Blockly.inject('blocklyDiv', {
             toolbox: document.getElementById('toolbox'),
             grid: {
@@ -133,61 +116,69 @@
             }));
         }
 
-        // Generate JavaScript code
+        // Gerar código NQC a partir dos blocos
         function generateCode() {
-            javascript.javascriptGenerator.addReservedWords('code');
-            var code = javascript.javascriptGenerator.workspaceToCode(workspace);
-
-            // Send code to C# application
-            if (window.chrome && window.chrome.webview) {
-                console.log('[generateCode] Enviando mensagem para C#: codeGenerated');
-                window.chrome.webview.postMessage(JSON.stringify({
-                    type: 'codeGenerated',
-                    code: code
-                }));
-            } else {
-                console.warn('[generateCode] window.chrome.webview não disponível');
+            console.log('[generateCode] Iniciando geração de código NQC');
+            
+            if (!nqc || !nqc.nqcGenerator) {
+                console.error('[generateCode] NQC generator não disponível');
+                return '';
             }
 
-            return code;
+            try {
+                var code = nqc.nqcGenerator.workspaceToCode(workspace);
+                console.log('[generateCode] Código NQC gerado:', code ? code.substring(0, 100) + '...' : 'vazio');
+
+                // Enviar código para a aplicação C#
+                if (window.chrome && window.chrome.webview) {
+                    console.log('[generateCode] Enviando mensagem para C#: codeGenerated');
+                    window.chrome.webview.postMessage(JSON.stringify({
+                        type: 'codeGenerated',
+                        code: code
+                    }));
+                } else {
+                    console.warn('[generateCode] window.chrome.webview não disponível');
+                }
+
+                return code;
+            } catch (error) {
+                console.error('[generateCode] Erro ao gerar código:', error);
+                return '';
+            }
         }
 
-        // Run the generated JavaScript code
+        // Executar o código gerado (não aplicável para NQC, mas mantido para compatibilidade)
         function runCode() {
             var code = generateCode();
-            try {
-                eval(code);
-            } catch (e) {
-                alert('Error running code: ' + e);
-            }
+            console.log('[runCode] Código gerado (não executável no navegador)');
         }
 
-        // Auto-generate code when workspace changes
+        // Gerar código automaticamente quando o workspace mudar
         workspace.addChangeListener(function (event) {
             console.log('[workspace.addChangeListener] Evento:', event.type);
-            
+
             if (event.type === Blockly.Events.BLOCK_CHANGE ||
                 event.type === Blockly.Events.BLOCK_CREATE ||
                 event.type === Blockly.Events.BLOCK_DELETE ||
                 event.type === Blockly.Events.BLOCK_MOVE) {
-                
+
                 console.log('[workspace.addChangeListener] Gerando código e notificando C#...');
                 generateCode();
             }
         });
 
-        // Load workspace from XML
+        // Carregar workspace a partir de XML
         function loadWorkspaceFromXml(xmlText) {
             console.log('[loadWorkspaceFromXml] Iniciando carregamento...');
             console.log('[loadWorkspaceFromXml] XML recebido:', xmlText ? xmlText.substring(0, 100) + '...' : 'vazio');
-            
+
             try {
                 // Desabilitar eventos durante o carregamento para evitar marcação como modificado
                 Blockly.Events.disable();
-                
+
                 workspace.clear();
                 console.log('[loadWorkspaceFromXml] Workspace limpo');
-                
+
                 if (xmlText && xmlText.trim() !== '') {
                     console.log('[loadWorkspaceFromXml] Convertendo XML para DOM...');
                     var xml = Blockly.utils.xml.textToDom(xmlText);
@@ -198,27 +189,28 @@
                 } else {
                     console.log('[loadWorkspaceFromXml] XML vazio, workspace permanece limpo');
                 }
-                
+
                 // Reabilitar eventos
                 Blockly.Events.enable();
-                
+
                 return true;
             } catch (e) {
                 console.error('[loadWorkspaceFromXml] Erro ao carregar workspace:', e);
                 console.error('[loadWorkspaceFromXml] Stack trace:', e.stack);
-                
+
                 // Reabilitar eventos mesmo em caso de erro
                 Blockly.Events.enable();
-                
+
                 return false;
             }
         }
 
-        // Function to get generated code (called from C#)
+        // Função para obter o código NQC gerado (chamada do C#)
         function getGeneratedCode() {
+            console.log('[getGeneratedCode] Função chamada');
             return generateCode();
         }
-        
+
         console.log('[Blockly] Workspace inicializado e pronto');
     </script>
 </body>
