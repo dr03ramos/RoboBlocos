@@ -509,6 +509,67 @@ Blockly.Blocks['nqc_tarefa_nomeada'] = {
             .setCheck(null);
         this.setColour(180);
         this.setTooltip("Tarefa com nome personalizado");
+    },
+    
+    /**
+     * Verifica se já existe outra tarefa com o mesmo nome
+     */
+    onchange: function(event) {
+        if (!this.workspace) {
+            return;
+        }
+        
+        // Obter o nome da tarefa atual
+        var currentName = this.getFieldValue('NOME');
+        if (!currentName || currentName.trim() === '') {
+            this.setWarningText('O nome da tarefa não pode estar vazio.');
+            return;
+        }
+        
+        // Buscar todas as tarefas nomeadas no workspace
+        var taskBlocks = this.workspace.getBlocksByType('nqc_tarefa_nomeada', false);
+        var duplicates = [];
+        
+        for (var i = 0; i < taskBlocks.length; i++) {
+            var block = taskBlocks[i];
+            if (block.id !== this.id) {
+                var taskName = block.getFieldValue('NOME');
+                if (taskName === currentName) {
+                    duplicates.push(block);
+                }
+            }
+        }
+        
+        // Se houver duplicatas, avisar o usuário
+        if (duplicates.length > 0) {
+            this.setWarningText('Já existe uma tarefa com o nome "' + currentName + '". Escolha um nome diferente.');
+        } else {
+            this.setWarningText(null);
+        }
+    }
+};
+
+Blockly.Blocks['nqc_executar_tarefa'] = {
+    init: function () {
+        this.appendDummyInput()
+            .appendField("executar tarefa")
+            .appendField(new Blockly.FieldTextInput("minhaTarefa"), "NOME");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(180);
+        this.setTooltip("Inicia a execução de uma tarefa");
+    }
+};
+
+Blockly.Blocks['nqc_interromper_tarefa'] = {
+    init: function () {
+        this.appendDummyInput()
+            .appendField("interromper tarefa")
+            .appendField(new Blockly.FieldTextInput("minhaTarefa"), "NOME");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(180);
+        this.setTooltip("Interrompe a execução de uma tarefa");
     }
 };
 
@@ -762,6 +823,16 @@ nqc.nqcGenerator.forBlock['nqc_tarefa_nomeada'] = function (block, generator) {
     
     // Montar código da tarefa com declarações no topo
     return `task ${nome}()\n{\n${varDeclarations}${statements}}\n`;
+};
+
+nqc.nqcGenerator.forBlock['nqc_executar_tarefa'] = function (block, generator) {
+    const nome = block.getFieldValue('NOME') || 'minhaTarefa';
+    return `start ${nome};\n`;
+};
+
+nqc.nqcGenerator.forBlock['nqc_interromper_tarefa'] = function (block, generator) {
+    const nome = block.getFieldValue('NOME') || 'minhaTarefa';
+    return `stop ${nome};\n`;
 };
 
 console.log('[NQC-BLOCKS] Blocos e geradores NQC carregados');

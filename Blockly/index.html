@@ -83,11 +83,154 @@
         <category name="Tarefas" colour="180">
             <block type="nqc_tarefa_principal"></block>
             <block type="nqc_tarefa_nomeada"></block>
+            <block type="nqc_executar_tarefa"></block>
         </category>
     </xml>
 
     <script src="custom/nqc-blocks.js"></script>
     <script>
+        /**
+         * Atualiza a toolbox dinamicamente com base nos blocos no workspace
+         */
+        function updateDynamicToolbox() {
+            console.log('[updateDynamicToolbox] Atualizando toolbox...');
+            
+            // Coletar todas as tarefas nomeadas
+            var taskBlocks = workspace.getBlocksByType('nqc_tarefa_nomeada', false);
+            var tasks = [];
+            for (var i = 0; i < taskBlocks.length; i++) {
+                var taskName = taskBlocks[i].getFieldValue('NOME');
+                if (taskName && taskName.trim() !== '') {
+                    tasks.push(taskName);
+                }
+            }
+            
+            // Coletar todas as variáveis declaradas
+            var varBlocks = workspace.getBlocksByType('nqc_variavel_recebe', false);
+            var variables = [];
+            var variableSet = {}; // Para evitar duplicatas
+            for (var i = 0; i < varBlocks.length; i++) {
+                var varName = varBlocks[i].getFieldValue('VAR');
+                if (varName && varName.trim() !== '' && !variableSet[varName]) {
+                    variables.push(varName);
+                    variableSet[varName] = true;
+                }
+            }
+            
+            // Gerar um nome único para nova tarefa (evitar duplicação)
+            var suggestedTaskName = 'minhaTarefa';
+            var taskNameIndex = 1;
+            while (tasks.indexOf(suggestedTaskName) !== -1) {
+                suggestedTaskName = 'minhaTarefa' + taskNameIndex;
+                taskNameIndex++;
+            }
+            
+            console.log('[updateDynamicToolbox] Tarefas encontradas:', tasks);
+            console.log('[updateDynamicToolbox] Variáveis encontradas:', variables);
+            console.log('[updateDynamicToolbox] Nome sugerido para nova tarefa:', suggestedTaskName);
+            
+            // Criar XML da toolbox dinamicamente
+            var toolboxXml = '<xml id="toolbox">';
+            
+            // Categoria Motores
+            toolboxXml += '<category name="Motores" colour="160">';
+            toolboxXml += '<block type="nqc_ligar_motor_com_potencia"></block>';
+            toolboxXml += '<block type="nqc_ligar_motor"></block>';
+            toolboxXml += '<block type="nqc_define_potencia_percent"></block>';
+            toolboxXml += '<block type="nqc_define_sentido"></block>';
+            toolboxXml += '<block type="nqc_toca_som"></block>';
+            toolboxXml += '</category>';
+            
+            // Categoria Sensores
+            toolboxXml += '<category name="Sensores" colour="200">';
+            toolboxXml += '<block type="nqc_define_sensor_toque"></block>';
+            toolboxXml += '<block type="nqc_define_sensor_luz"></block>';
+            toolboxXml += '<block type="nqc_define_sensor_rotacao"></block>';
+            toolboxXml += '<block type="nqc_valor_sensor_toque"></block>';
+            toolboxXml += '<block type="nqc_valor_sensor_luz"></block>';
+            toolboxXml += '<block type="nqc_valor_sensor_rotacao"></block>';
+            toolboxXml += '</category>';
+            
+            // Categoria Controles
+            toolboxXml += '<category name="Controles" colour="120">';
+            toolboxXml += '<block type="nqc_espera_segundos">';
+            toolboxXml += '<value name="SECONDS"><shadow type="nqc_numero"><field name="NUM">1</field></shadow></value>';
+            toolboxXml += '</block>';
+            toolboxXml += '<block type="nqc_espera_ate_que"></block>';
+            toolboxXml += '<block type="nqc_repita_vezes">';
+            toolboxXml += '<value name="TIMES"><shadow type="nqc_numero"><field name="NUM">10</field></shadow></value>';
+            toolboxXml += '</block>';
+            toolboxXml += '<block type="nqc_repita_infinitamente"></block>';
+            toolboxXml += '<block type="nqc_repita_ate_que"></block>';
+            toolboxXml += '</category>';
+            
+            // Categoria Variáveis (DINÂMICA)
+            toolboxXml += '<category name="Variáveis" colour="330">';
+            toolboxXml += '<block type="nqc_variavel_recebe"></block>';
+            if (variables.length == 0) {
+                toolboxXml += '<block type="nqc_valor_variavel"><field name="VAR">x</field></block>';
+            } else {
+                // Adicionar blocos para cada variável existente
+                for (var i = 0; i < variables.length; i++) {
+                    toolboxXml += '<block type="nqc_valor_variavel">';
+                    toolboxXml += '<field name="VAR">' + variables[i] + '</field>';
+                    toolboxXml += '</block>';
+                }
+            }
+            toolboxXml += '</category>';
+            
+            // Categoria Matemática
+            toolboxXml += '<category name="Matemática" colour="230">';
+            toolboxXml += '<block type="nqc_numero"><field name="NUM">0</field></block>';
+            toolboxXml += '<block type="nqc_operacao_matematica"></block>';
+            toolboxXml += '</category>';
+            
+            // Categoria Lógica
+            toolboxXml += '<category name="Lógica" colour="210">';
+            toolboxXml += '<block type="nqc_comparacao"></block>';
+            toolboxXml += '<block type="nqc_operacao_logica"></block>';
+            toolboxXml += '<block type="nqc_contrario"></block>';
+            toolboxXml += '<block type="nqc_booleano"></block>';
+            toolboxXml += '</category>';
+            
+            // Categoria Condicionais
+            toolboxXml += '<category name="Condicionais" colour="290">';
+            toolboxXml += '<block type="nqc_se_faca"></block>';
+            toolboxXml += '<block type="nqc_se_faca_senao"></block>';
+            toolboxXml += '</category>';
+            
+            // Categoria Tarefas (DINÂMICA)
+            toolboxXml += '<category name="Tarefas" colour="180">';
+            toolboxXml += '<block type="nqc_tarefa_principal"></block>';
+            // Bloco "tarefa nomeada" com nome sugerido único
+            toolboxXml += '<block type="nqc_tarefa_nomeada"><field name="NOME">' + suggestedTaskName + '</field></block>';
+            
+            if (tasks.length == 0) {
+                // Se não há tarefas, mostrar bloco genérico
+                toolboxXml += '<block type="nqc_executar_tarefa"><field name="NOME">minhaTarefa</field></block>';
+                toolboxXml += '<block type="nqc_interromper_tarefa"><field name="NOME">minhaTarefa</field></block>';
+            } else {
+                // Adicionar blocos para cada tarefa existente
+                for (var i = 0; i < tasks.length; i++) {
+                    toolboxXml += '<block type="nqc_executar_tarefa">';
+                    toolboxXml += '<field name="NOME">' + tasks[i] + '</field>';
+                    toolboxXml += '</block>';
+                    toolboxXml += '<block type="nqc_interromper_tarefa">';
+                    toolboxXml += '<field name="NOME">' + tasks[i] + '</field>';
+                    toolboxXml += '</block>';
+                }
+            }
+            toolboxXml += '</category>';
+            
+            toolboxXml += '</xml>';
+            
+            // Atualizar a toolbox
+            var toolboxDom = Blockly.utils.xml.textToDom(toolboxXml);
+            workspace.updateToolbox(toolboxDom);
+            
+            console.log('[updateDynamicToolbox] Toolbox atualizada com sucesso');
+        }
+
         // Inicializar workspace do Blockly
         var workspace = Blockly.inject('blocklyDiv', {
             toolbox: document.getElementById('toolbox'),
@@ -156,6 +299,9 @@
             console.log('[runCode] Código gerado (não executável no navegador)');
         }
 
+        // Variável para controlar debounce da atualização da toolbox
+        var toolboxUpdateTimeout = null;
+
         // Gerar código automaticamente quando o workspace mudar
         workspace.addChangeListener(function (event) {
             console.log('[workspace.addChangeListener] Evento:', event.type);
@@ -167,6 +313,22 @@
 
                 console.log('[workspace.addChangeListener] Gerando código e notificando C#...');
                 generateCode();
+                
+                // Atualizar toolbox com debounce (evitar múltiplas atualizações seguidas)
+                if (event.type === Blockly.Events.BLOCK_CHANGE ||
+                    event.type === Blockly.Events.BLOCK_CREATE ||
+                    event.type === Blockly.Events.BLOCK_DELETE) {
+                    
+                    // Cancelar timeout anterior se existir
+                    if (toolboxUpdateTimeout) {
+                        clearTimeout(toolboxUpdateTimeout);
+                    }
+                    
+                    // Agendar atualização da toolbox após 500ms
+                    toolboxUpdateTimeout = setTimeout(function() {
+                        updateDynamicToolbox();
+                    }, 500);
+                }
             }
         });
 
@@ -195,6 +357,9 @@
 
                 // Reabilitar eventos
                 Blockly.Events.enable();
+                
+                // Atualizar toolbox após carregar workspace
+                updateDynamicToolbox();
 
                 return true;
             } catch (e) {
