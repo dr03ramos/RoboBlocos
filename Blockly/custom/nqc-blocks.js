@@ -472,7 +472,31 @@ Blockly.Blocks['nqc_tarefa_principal'] = {
             .setCheck(null);
         this.setColour(180);
         this.setTooltip("Tarefa principal do programa (task main)");
-        this.setDeletable(false); // Não pode ser deletada
+    },
+    
+    /**
+     * Verifica se já existe outro bloco de tarefa principal no workspace
+     * @return {boolean} true se já existe, false caso contrário
+     */
+    onchange: function(event) {
+        if (!this.workspace) {
+            return;
+        }
+        
+        // Contar blocos de tarefa principal no workspace
+        var mainTaskBlocks = this.workspace.getBlocksByType('nqc_tarefa_principal', false);
+        
+        // Se há mais de um bloco de tarefa principal, desabilitar este bloco se não for o primeiro
+        if (mainTaskBlocks.length > 1) {
+            var firstBlock = mainTaskBlocks[0];
+            if (this.id !== firstBlock.id) {
+                this.setWarningText('Apenas um bloco de "tarefa principal" é permitido no projeto. Remova este bloco.');
+                this.setEnabled(false);
+            }
+        } else {
+            this.setWarningText(null);
+            this.setEnabled(true);
+        }
     }
 };
 
@@ -601,11 +625,13 @@ nqc.nqcGenerator.forBlock['nqc_repita_ate_que'] = function (block, generator) {
 nqc.nqcGenerator.forBlock['nqc_variavel_recebe'] = function (block, generator) {
     const varName = block.getFieldValue('VAR');
     const valor = generator.valueToCode(block, 'VALOR', generator.ORDER_ASSIGNMENT) || '0';
+    generator.registerVariableInScope(varName);
     return `${varName} = ${valor};\n`;
 };
 
 nqc.nqcGenerator.forBlock['nqc_valor_variavel'] = function (block, generator) {
     const varName = block.getFieldValue('VAR');
+    generator.registerVariableInScope(varName);
     return [varName, generator.ORDER_ATOMIC];
 };
 
@@ -685,14 +711,57 @@ nqc.nqcGenerator.forBlock['nqc_se_faca_senao'] = function (block, generator) {
 
 // SEÇÃO 8: Tarefas
 nqc.nqcGenerator.forBlock['nqc_tarefa_principal'] = function (block, generator) {
+    const scopeId = 'task_main';
+    
+    // Marcar que task main foi encontrada
+    generator.hasMainTask_ = true;
+    
+    // Iniciar rastreamento de escopo
+    generator.startScope(scopeId);
+    
+    // Coletar todas as variáveis usadas no bloco
+    const statements_block = block.getInputTargetBlock('STATEMENTS');
+    if (statements_block) {
+        generator.collectVariablesInBlock(statements_block);
+    }
+    
+    // Gerar código das instruções
     const statements = generator.statementToCode(block, 'STATEMENTS');
-    return `task main()\n{\n${statements}}\n`;
+    
+    // Obter declarações de variáveis
+    const varDeclarations = generator.getVariableDeclarations(scopeId);
+    
+    // Finalizar escopo
+    generator.endScope();
+    
+    // Montar código da tarefa com declarações no topo
+    return `task main()\n{\n${varDeclarations}${statements}}\n`;
 };
 
 nqc.nqcGenerator.forBlock['nqc_tarefa_nomeada'] = function (block, generator) {
     const nome = block.getFieldValue('NOME') || 'minhaTarefa';
+    const scopeId = 'task_' + nome;
+    
+    // Iniciar rastreamento de escopo
+    generator.startScope(scopeId);
+    
+    // Coletar todas as variáveis usadas no bloco
+    const statements_block = block.getInputTargetBlock('STATEMENTS');
+    if (statements_block) {
+        generator.collectVariablesInBlock(statements_block);
+    }
+    
+    // Gerar código das instruções
     const statements = generator.statementToCode(block, 'STATEMENTS');
-    return `task ${nome}()\n{\n${statements}}\n`;
+    
+    // Obter declarações de variáveis
+    const varDeclarations = generator.getVariableDeclarations(scopeId);
+    
+    // Finalizar escopo
+    generator.endScope();
+    
+    // Montar código da tarefa com declarações no topo
+    return `task ${nome}()\n{\n${varDeclarations}${statements}}\n`;
 };
 
 console.log('[NQC-BLOCKS] Blocos e geradores NQC carregados');

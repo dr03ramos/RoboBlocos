@@ -48,11 +48,15 @@
             this.ORDER_CONDITIONAL = 13;     // ?:
             this.ORDER_ASSIGNMENT = 14;      // = += -= *= /= %= <<= >>= &= ^= |=
             this.ORDER_NONE = 99;            // (...)
+
+            // Sistema customizado de rastreamento de variáveis por escopo
+            this.scopeVariables_ = {};
+            this.currentScope_ = null;
+            this.hasMainTask_ = false;
         }
 
         /**
-         * Initialise the database of variable names.
-         * @param {!Blockly.Workspace} workspace Workspace to generate code from.
+         * Inicializa o gerador para um novo workspace
          */
         init(workspace) {
             super.init(workspace);
@@ -67,19 +71,208 @@
             this.nameDB_.populateVariables(workspace);
             this.nameDB_.populateProcedures(workspace);
 
-            const defvars = [];
-            const variables = workspace.getAllVariables();
-            if (variables.length) {
-                for (let i = 0; i < variables.length; i++) {
-                    defvars.push('int ' +
-                        this.nameDB_.getName(variables[i].name, Blockly.Names.NameType.VARIABLE) + ';');
-                }
-            }
-            this.definitions_['variables'] = defvars.join('\n');
+            // NÃO usar o sistema padrão de variáveis globais
+            // this.definitions_['variables'] = ... (removido)
+            
+            // Resetar o sistema de rastreamento de variáveis por escopo
+            this.scopeVariables_ = {};
+            this.currentScope_ = null;
+            this.hasMainTask_ = false;
         }
 
         /**
-         * Prepend the generated code with variable definitions.
+         * Inicia um novo escopo (task, função, etc.)
+         * @param {string} scopeId - Identificador único do escopo
+         */
+        startScope(scopeId) {
+            this.currentScope_ = scopeId;
+            if (!this.scopeVariables_[scopeId]) {
+                this.scopeVariables_[scopeId] = new Set();
+            }
+        }
+
+        /**
+         * Finaliza o escopo atual
+         */
+        endScope() {
+            this.currentScope_ = null;
+        }
+
+        /**
+         * Registra o uso de uma variável no escopo atual
+         * @param {string} varName - Nome da variável
+         */
+        registerVariableInScope(varName) {
+            if (this.currentScope_ && varName) {
+                this.scopeVariables_[this.currentScope_].add(varName);
+            }
+        }
+
+        /**
+         * Obtém as declarações de variáveis para um escopo
+         * @param {string} scopeId - Identificador do escopo
+         * @return {string} - Declarações de variáveis
+         */
+        getVariableDeclarations(scopeId) {
+            const variables = this.scopeVariables_[scopeId];
+            if (!variables || variables.size === 0) {
+                return '';
+            }
+            
+            const declarations = Array.from(variables).map(varName => `  int ${varName};`).join('\n');
+            return declarations + '\n\n';
+        }
+
+        /**
+         * Coleta todas as variáveis usadas em um bloco e seus filhos
+         * @param {Blockly.Block} block - Bloco raiz
+         * @return {Set<string>} - Conjunto de nomes de variáveis
+         */
+        collectVariablesInBlock(block) {
+            const variables = new Set();
+            
+            if (!block) {
+                return variables;
+            }
+
+            // Verificar se o bloco usa variáveis
+            if (block.type === 'nqc_variavel_recebe' || block.type === 'variables_set') {
+                const varName = block.getFieldValue('VAR');
+                if (varName) {
+                    variables.add(varName);
+                }
+            } else if (block.type === 'nqc_valor_variavel' || block.type === 'variables_get') {
+                const varName = block.getFieldValue('VAR');
+                if (varName) {
+                    variables.add(varName);
+                }
+            } else if (block.type === 'math_change') {
+                const varName = block.getFieldValue('VAR');
+                if (varName) {
+                    variables.add(varName);
+                }
+            } else if (block.type === 'controls_for' || block.type === 'controls_forEach') {
+                const varName = block.getFieldValue('VAR');
+                if (varName) {
+                    variables.add(varName);
+                }
+            }
+
+            // Recursivamente coletar variáveis de blocos filhos (inputs)
+            for (let i = 0; i < block.inputList.length; i++) {
+                const input = block.inputList[i];
+                if (input.connection && input.connection.targetBlock()) {
+                    const childVars = this.collectVariablesInBlock(input.connection.targetBlock());
+                    childVars.forEach(v => variables.add(v));
+                }
+            }
+
+            // Recursivamente coletar variáveis de blocos seguintes
+            if (block.nextConnection && block.nextConnection.targetBlock()) {
+                const nextVars = this.collectVariablesInBlock(block.nextConnection.targetBlock());
+                nextVars.forEach(v => variables.add(v));
+            }
+
+            return variables;
+        }
+
+        /**
+         * Converte workspace em código, garantindo que tenha task main
+         * @param {Blockly.Workspace} workspace - Workspace do Blockly
+         * @return {string} - Código NQC completo
+         */
+        workspaceToCode(workspace) {
+            if (!workspace) {
+                return '';
+            }
+
+            this.init(workspace);
+            
+            const allBlocks = workspace.getTopBlocks(true);
+            let taskCode = '';
+            let looseCode = '';
+            let looseBlocks = [];
+            
+            // Primeiro, processar todos os blocos
+            for (let i = 0; i < allBlocks.length; i++) {
+                const block = allBlocks[i];
+                
+                // Verificar se é um bloco de tarefa (principal ou nomeada)
+                if (block.type === 'nqc_tarefa_principal' || block.type === 'nqc_tarefa_nomeada') {
+                    const blockCode = this.blockToCode(block);
+                    if (blockCode) {
+                        taskCode += blockCode;
+                        if (!blockCode.endsWith('\n')) {
+                            taskCode += '\n';
+                        }
+                    }
+                } else {
+                    // Bloco solto - guardar para processar depois
+                    looseBlocks.push(block);
+                }
+            }
+
+            // Processar blocos soltos
+            if (looseBlocks.length > 0) {
+                // Se NÃO há task main, criar uma com os blocos soltos dentro
+                if (!this.hasMainTask_) {
+                    const scopeId = 'task_main';
+                    
+                    // Iniciar rastreamento de escopo
+                    this.startScope(scopeId);
+                    
+                    // Coletar variáveis de todos os blocos soltos
+                    for (let i = 0; i < looseBlocks.length; i++) {
+                        this.collectVariablesInBlock(looseBlocks[i]);
+                    }
+                    
+                    // Gerar código dos blocos soltos
+                    for (let i = 0; i < looseBlocks.length; i++) {
+                        const blockCode = this.blockToCode(looseBlocks[i]);
+                        if (blockCode) {
+                            looseCode += '  ' + blockCode.trim().replace(/\n/g, '\n  ') + '\n';
+                        }
+                    }
+                    
+                    // Obter declarações de variáveis
+                    const varDeclarations = this.getVariableDeclarations(scopeId);
+                    
+                    // Finalizar escopo
+                    this.endScope();
+                    
+                    // Criar task main com declarações e blocos soltos
+                    taskCode += '\ntask main()\n{\n';
+                    if (varDeclarations) {
+                        taskCode += varDeclarations;
+                    }
+                    taskCode += looseCode;
+                    taskCode += '}\n';
+                } else {
+                    // Se JÁ existe task main, gerar os blocos soltos normalmente (fora de qualquer tarefa)
+                    // Isso permite código de inicialização ou definições globais
+                    for (let i = 0; i < looseBlocks.length; i++) {
+                        const blockCode = this.blockToCode(looseBlocks[i]);
+                        if (blockCode) {
+                            looseCode += blockCode;
+                            if (!blockCode.endsWith('\n')) {
+                                looseCode += '\n';
+                            }
+                        }
+                    }
+                    
+                    // Adicionar blocos soltos ANTES das tarefas
+                    taskCode = looseCode + '\n' + taskCode;
+                }
+            } else if (!this.hasMainTask_) {
+                // Não há blocos soltos E não há task main - criar task main vazia
+                taskCode += '\ntask main()\n{\n}\n';
+            }
+
+            return this.finish(taskCode);
+        }
+
+        /**
+         * Prepend the generated code with definitions.
          * @param {string} code Generated code.
          * @return {string} Completed code.
          */
@@ -87,6 +280,11 @@
             const imports = [];
             const definitions = [];
             for (let name in this.definitions_) {
+                // Ignorar 'variables' do sistema padrão
+                if (name === 'variables') {
+                    continue;
+                }
+                
                 const def = this.definitions_[name];
                 if (def.match(/^#include/)) {
                     imports.push(def);
@@ -188,7 +386,7 @@
                     generator.injectId(generator.STATEMENT_SUFFIX, block),
                     generator.INDENT) + branchCode;
             }
-            code += ' else {\n' + branchCode + '}';
+            code += ' else {\n' + branchCode + '}'
         }
         return code + '\n';
     };
@@ -265,6 +463,7 @@
         let repeats;
         if (block.getField('TIMES')) {
             repeats = String(Number(block.getFieldValue('TIMES')));
+
         } else {
             repeats = generator.valueToCode(block, 'TIMES',
                 generator.ORDER_NONE) || '0';
@@ -272,13 +471,13 @@
         let branch = generator.statementToCode(block, 'DO');
         branch = generator.addLoopTrap(branch, block);
         let code = '';
-        const loopVar = generator.nameDB_.getDistinctName(
-            'count', Blockly.Names.NameType.VARIABLE);
         let endVar = repeats;
         if (!repeats.match(/^\w+$/) && !repeats.match(/^\d+$/)) {
-            endVar = generator.nameDB_.getDistinctName(
+            const endVarName = generator.nameDB_.getDistinctName(
                 'repeat_end', Blockly.Names.NameType.VARIABLE);
-            code += 'int ' + endVar + ' = ' + repeats + ';\n';
+            generator.registerVariableInScope(endVarName);
+            endVar = endVarName;
+            code += endVarName + ' = ' + repeats + ';\n';
         }
         code += 'repeat(' + endVar + ') {\n' +
             branch + '}\n';
@@ -304,6 +503,8 @@
     nqcGenerator.forBlock['controls_for'] = function (block, generator) {
         const variable0 = generator.nameDB_.getName(
             block.getFieldValue('VAR'), Blockly.Names.NameType.VARIABLE);
+        generator.registerVariableInScope(variable0);
+        
         const argument0 = generator.valueToCode(block, 'FROM',
             generator.ORDER_ASSIGNMENT) || '0';
         const argument1 = generator.valueToCode(block, 'TO',
@@ -337,6 +538,8 @@
     nqcGenerator.forBlock['controls_forEach'] = function (block, generator) {
         const variable0 = generator.nameDB_.getName(
             block.getFieldValue('VAR'), Blockly.Names.NameType.VARIABLE);
+        generator.registerVariableInScope(variable0);
+        
         const argument0 = generator.valueToCode(block, 'LIST',
             generator.ORDER_ASSIGNMENT) || '[]';
         let branch = generator.statementToCode(block, 'DO');
@@ -492,6 +695,7 @@
             generator.ORDER_ADDITIVE) || '0';
         const varName = generator.nameDB_.getName(
             block.getFieldValue('VAR'), Blockly.Names.NameType.VARIABLE);
+        generator.registerVariableInScope(varName);
         return varName + ' += ' + argument0 + ';\n';
     };
 
@@ -539,9 +743,10 @@
     // ===== VARIABLE BLOCKS =====
 
     nqcGenerator.forBlock['variables_get'] = function (block, generator) {
-        const code = generator.nameDB_.getName(block.getFieldValue('VAR'),
+        const varName = generator.nameDB_.getName(block.getFieldValue('VAR'),
             Blockly.Names.NameType.VARIABLE);
-        return [code, generator.ORDER_ATOMIC];
+        generator.registerVariableInScope(varName);
+        return [varName, generator.ORDER_ATOMIC];
     };
 
     nqcGenerator.forBlock['variables_set'] = function (block, generator) {
@@ -549,6 +754,7 @@
             generator.ORDER_ASSIGNMENT) || '0';
         const varName = generator.nameDB_.getName(
             block.getFieldValue('VAR'), Blockly.Names.NameType.VARIABLE);
+        generator.registerVariableInScope(varName);
         return varName + ' = ' + argument0 + ';\n';
     };
 
