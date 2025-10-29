@@ -27,9 +27,21 @@
 
     <xml id="toolbox" style="display: none">
         <category name="Motores" colour="160">
-            <block type="nqc_ligar_motor_com_potencia"></block>
+            <block type="nqc_ligar_motor_com_potencia">
+                <value name="POTENCIA">
+                    <shadow type="nqc_percentual">
+                        <field name="NUM">100</field>
+                    </shadow>
+                </value>
+            </block>
             <block type="nqc_ligar_motor"></block>
-            <block type="nqc_define_potencia_percent"></block>
+            <block type="nqc_define_potencia_percent">
+                <value name="POTENCIA">
+                    <shadow type="nqc_percentual">
+                        <field name="NUM">50</field>
+                    </shadow>
+                </value>
+            </block>
             <block type="nqc_define_sentido"></block>
             <block type="nqc_toca_som"></block>
         </category>
@@ -134,9 +146,13 @@
             
             // Categoria Motores
             toolboxXml += '<category name="Motores" colour="160">';
-            toolboxXml += '<block type="nqc_ligar_motor_com_potencia"></block>';
+            toolboxXml += '<block type="nqc_ligar_motor_com_potencia">';
+            toolboxXml += '<value name="POTENCIA"><shadow type="nqc_percentual"><field name="NUM">100</field></shadow></value>';
+            toolboxXml += '</block>';
             toolboxXml += '<block type="nqc_ligar_motor"></block>';
-            toolboxXml += '<block type="nqc_define_potencia_percent"></block>';
+            toolboxXml += '<block type="nqc_define_potencia_percent">';
+            toolboxXml += '<value name="POTENCIA"><shadow type="nqc_percentual"><field name="NUM">50</field></shadow></value>';
+            toolboxXml += '</block>';
             toolboxXml += '<block type="nqc_define_sentido"></block>';
             toolboxXml += '<block type="nqc_toca_som"></block>';
             toolboxXml += '</category>';

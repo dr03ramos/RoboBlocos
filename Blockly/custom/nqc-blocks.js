@@ -11,18 +11,17 @@ Blockly.Blocks['nqc_ligar_motor_com_potencia'] = {
                 ["A+B", "OUT_A+OUT_B"],
                 ["A+C", "OUT_A+OUT_C"],
                 ["A+B+C", "OUT_A+OUT_B+OUT_C"]
-            ]), "MOTOR")
+            ]), "MOTOR");
+        this.appendDummyInput()
             .appendField("no sentido")
             .appendField(new Blockly.FieldDropdown([
                 ["horário", "FWD"],
                 ["antihorário", "REV"]
-            ]), "SENTIDO")
-            .appendField("com potência");
+            ]), "SENTIDO");
         this.appendValueInput("POTENCIA")
-            .setCheck("Number");
-        this.appendDummyInput()
-            .appendField("por cento");
-        this.setInputsInline(true);
+            .setCheck("Percent")
+            .appendField("com potência");
+        this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
         this.setColour(160);
@@ -41,13 +40,14 @@ Blockly.Blocks['nqc_ligar_motor'] = {
                 ["A+B", "OUT_A+OUT_B"],
                 ["A+C", "OUT_A+OUT_C"],
                 ["A+B+C", "OUT_A+OUT_B+OUT_C"]
-            ]), "MOTOR")
+            ]), "MOTOR");
+        this.appendDummyInput()
             .appendField("no sentido")
             .appendField(new Blockly.FieldDropdown([
                 ["horário", "FWD"],
                 ["antihorário", "REV"]
             ]), "SENTIDO");
-        this.setInputsInline(true);
+        this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
         this.setColour(160);
@@ -58,10 +58,10 @@ Blockly.Blocks['nqc_ligar_motor'] = {
 Blockly.Blocks['nqc_define_potencia_percent'] = {
     init: function () {
         this.appendValueInput("POTENCIA")
-            .setCheck("Number")
+            .setCheck("Percent")
             .appendField("define potência");
         this.appendDummyInput()
-            .appendField("por cento para motores")
+            .appendField("para motores")
             .appendField(new Blockly.FieldDropdown([
                 ["A", "OUT_A"],
                 ["B", "OUT_B"],
@@ -70,7 +70,7 @@ Blockly.Blocks['nqc_define_potencia_percent'] = {
                 ["A+C", "OUT_A+OUT_C"],
                 ["A+B+C", "OUT_A+OUT_B+OUT_C"]
             ]), "MOTOR");
-        this.setInputsInline(true);
+        this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
         this.setColour(160);
@@ -85,7 +85,8 @@ Blockly.Blocks['nqc_define_sentido'] = {
             .appendField(new Blockly.FieldDropdown([
                 ["horário", "FWD"],
                 ["antihorário", "REV"]
-            ]), "SENTIDO")
+            ]), "SENTIDO");
+        this.appendDummyInput()
             .appendField("para motores")
             .appendField(new Blockly.FieldDropdown([
                 ["A", "OUT_A"],
@@ -95,7 +96,7 @@ Blockly.Blocks['nqc_define_sentido'] = {
                 ["A+C", "OUT_A+OUT_C"],
                 ["A+B+C", "OUT_A+OUT_B+OUT_C"]
             ]), "MOTOR");
-        this.setInputsInline(true);
+        this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
         this.setColour(160);
@@ -332,6 +333,17 @@ Blockly.Blocks['nqc_numero'] = {
         this.setOutput(true, "Number");
         this.setColour(230);
         this.setTooltip("Um número");
+    }
+};
+
+Blockly.Blocks['nqc_percentual'] = {
+    init: function () {
+        this.appendDummyInput()
+            .appendField(new Blockly.FieldNumber(50, 0, 100), "NUM")
+            .appendField("%");
+        this.setOutput(true, "Percent");
+        this.setColour(230);
+        this.setTooltip("Um valor percentual entre 0 e 100");
     }
 };
 
@@ -581,7 +593,7 @@ nqc.nqcGenerator.forBlock['nqc_ligar_motor_com_potencia'] = function (block, gen
     const sentido = block.getFieldValue('SENTIDO');
     const potenciaPercent = generator.valueToCode(block, 'POTENCIA', generator.ORDER_NONE) || '50';
 
-    // Converter percentual (10-100) para potência NQC (0-7)
+    // Converter percentual (0-100) para potência NQC (0-7)
     const potenciaNQC = `(${potenciaPercent} * 7 / 100)`;
 
     let code = `SetPower(${motor}, ${potenciaNQC});\n`;
@@ -698,6 +710,11 @@ nqc.nqcGenerator.forBlock['nqc_valor_variavel'] = function (block, generator) {
 
 // SEÇÃO 5: Matemática
 nqc.nqcGenerator.forBlock['nqc_numero'] = function (block, generator) {
+    const num = block.getFieldValue('NUM');
+    return [num, generator.ORDER_ATOMIC];
+};
+
+nqc.nqcGenerator.forBlock['nqc_percentual'] = function (block, generator) {
     const num = block.getFieldValue('NUM');
     return [num, generator.ORDER_ATOMIC];
 };

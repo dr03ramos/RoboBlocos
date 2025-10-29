@@ -839,6 +839,13 @@
         return 'PlayTone(' + frequency + ', ' + duration + ');\n';
     };
 
+    // ===== CUSTOM NQC BLOCKS (from nqc-blocks.js) =====
+
+    nqcGenerator.forBlock['nqc_percentual'] = function (block, generator) {
+        const num = block.getFieldValue('NUM');
+        return [num, generator.ORDER_ATOMIC];
+    };
+
     // Export the generator
     return {
         NqcGenerator: NqcGenerator,
