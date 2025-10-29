@@ -57,6 +57,18 @@ Blockly.Blocks['nqc_ligar_motor'] = {
     }
 };
 
+Blockly.Blocks['nqc_desligar_motor'] = {
+    init: function () {
+        this.appendDummyInput()
+            .appendField("desligar motores")
+            .appendField(new Blockly.FieldDropdown(MOTOR_OPTIONS), "MOTOR");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(160);
+        this.setTooltip("Desliga os motores selecionados");
+    }
+};
+
 Blockly.Blocks['nqc_define_potencia_percent'] = {
     init: function () {
         this.appendValueInput("POTENCIA")
@@ -590,6 +602,11 @@ nqc.nqcGenerator.forBlock['nqc_ligar_motor'] = function (block, generator) {
     const motor = block.getFieldValue('MOTOR');
     const sentido = block.getFieldValue('SENTIDO');
     return sentido === 'FWD' ? `OnFwd(${motor});\n` : `OnRev(${motor});\n`;
+};
+
+nqc.nqcGenerator.forBlock['nqc_desligar_motor'] = function (block, generator) {
+    const motor = block.getFieldValue('MOTOR');
+    return `Off(${motor});\n`;
 };
 
 nqc.nqcGenerator.forBlock['nqc_define_potencia_percent'] = function (block, generator) {
