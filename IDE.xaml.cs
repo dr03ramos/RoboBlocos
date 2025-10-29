@@ -442,8 +442,12 @@ namespace RoboBlocos
                 // Adicionar log de sucesso
                 AddLog("Código gerado com sucesso", LogSeverity.Success, LogCategory.Obrigatórios);
 
-                // Exibir o código gerado em um diálogo
-                await ShowGeneratedCodeDialogAsync(generatedCode);
+                // Exibir o código gerado usando o CodeExporter
+                var codeExporter = new CodeExporter(this, CurrentProject, generatedCode)
+                {
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await codeExporter.ShowAsync();
             }
             catch (Exception ex)
             {
@@ -472,292 +476,6 @@ namespace RoboBlocos
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Erro ao enviar para o robô: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Exibe um diálogo com o código gerado
-        /// </summary>
-        /// <param name="code">Código JavaScript gerado</param>
-        private async Task ShowGeneratedCodeDialogAsync(string code)
-        {
-            // Container principal
-            var mainGrid = new Grid
-            {
-                Width = 800,
-                Height = 600,
-                Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent)
-            };
-            
-            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-
-            // Título e descrição
-            var headerPanel = new StackPanel
-            {
-                Margin = new Thickness(0, 0, 0, 12)
-            };
-            
-            var titleText = new TextBlock
-            {
-                Text = "Código JavaScript Gerado",
-                FontSize = 20,
-                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-                Margin = new Thickness(0, 0, 0, 4)
-            };
-            
-            var descriptionText = new TextBlock
-            {
-                Text = "Este é o código gerado a partir dos seus blocos. Você pode copiar ou salvar este código.",
-                FontSize = 12,
-                Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray),
-                TextWrapping = TextWrapping.Wrap
-            };
-            
-            headerPanel.Children.Add(titleText);
-            headerPanel.Children.Add(descriptionText);
-            Grid.SetRow(headerPanel, 0);
-            mainGrid.Children.Add(headerPanel);
-
-            // Área do editor de código
-            var codeEditorBorder = new Border
-            {
-                Background = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 30, 30, 30)),
-                CornerRadius = new CornerRadius(8),
-                BorderBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 60, 60, 60)),
-                BorderThickness = new Thickness(1),
-                Margin = new Thickness(0, 0, 0, 12)
-            };
-
-            var codeEditorGrid = new Grid();
-            codeEditorGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            codeEditorGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
-            // Painel de numeração de linhas
-            var lineNumbersPanel = new StackPanel
-            {
-                Background = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 20, 20, 20)),
-                Padding = new Thickness(12, 12, 8, 12),
-                VerticalAlignment = VerticalAlignment.Top
-            };
-
-            // Painel do código
-            var codeScrollViewer = new ScrollViewer
-            {
-                HorizontalScrollMode = ScrollMode.Auto,
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
-                VerticalScrollMode = ScrollMode.Auto,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                Padding = new Thickness(12)
-            };
-
-            var codeTextBlock = new TextBlock
-            {
-                FontFamily = new FontFamily("Consolas"),
-                FontSize = 13,
-                IsTextSelectionEnabled = true,
-                TextWrapping = TextWrapping.NoWrap,
-                Foreground = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 212, 212, 212))
-            };
-
-            // Dividir o código em linhas e adicionar numeração
-            var lines = code.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
-            var maxLineNumberWidth = lines.Length.ToString().Length;
-
-            // Adicionar números de linha
-            for (int i = 1; i <= lines.Length; i++)
-            {
-                var lineNumber = new TextBlock
-                {
-                    Text = i.ToString().PadLeft(maxLineNumberWidth),
-                    FontFamily = new FontFamily("Consolas"),
-                    FontSize = 13,
-                    Foreground = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 133, 133, 133)),
-                    TextAlignment = TextAlignment.Right,
-                    Margin = new Thickness(0, 0, 0, 0)
-                };
-                lineNumbersPanel.Children.Add(lineNumber);
-            }
-
-            codeTextBlock.Text = code;
-            codeScrollViewer.Content = codeTextBlock;
-
-            // Sincronizar scroll entre números de linha e código
-            codeScrollViewer.ViewChanged += (s, e) =>
-            {
-                lineNumbersPanel.Margin = new Thickness(0, -codeScrollViewer.VerticalOffset, 0, 0);
-            };
-
-            Grid.SetColumn(lineNumbersPanel, 0);
-            Grid.SetColumn(codeScrollViewer, 1);
-            codeEditorGrid.Children.Add(lineNumbersPanel);
-            codeEditorGrid.Children.Add(codeScrollViewer);
-
-            codeEditorBorder.Child = codeEditorGrid;
-            Grid.SetRow(codeEditorBorder, 1);
-            mainGrid.Children.Add(codeEditorBorder);
-
-            // Painel de informações
-            var infoPanel = new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                Spacing = 8,
-                Margin = new Thickness(0, 0, 0, 8)
-            };
-            
-            var infoIcon = new FontIcon
-            {
-                Glyph = "\uE946",
-                FontSize = 12,
-                Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray)
-            };
-            
-            var infoText = new TextBlock
-            {
-                Text = $"{lines.Length} linhas | Selecione o texto para copiar",
-                FontSize = 12,
-                Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray)
-            };
-            
-            infoPanel.Children.Add(infoIcon);
-            infoPanel.Children.Add(infoText);
-            Grid.SetRow(infoPanel, 2);
-            mainGrid.Children.Add(infoPanel);
-
-            // Criar o diálogo
-            var dialog = new ContentDialog
-            {
-                Title = null, // Removemos o título padrão pois temos um customizado
-                Content = mainGrid,
-                PrimaryButtonText = "Salvar Arquivo",
-                SecondaryButtonText = "Copiar Tudo",
-                CloseButtonText = "Fechar",
-                DefaultButton = ContentDialogButton.Close,
-                XamlRoot = this.Content.XamlRoot
-            };
-
-            // Handler para o botão Salvar
-            dialog.PrimaryButtonClick += async (s, e) =>
-            {
-                e.Cancel = true; // Prevenir fechamento automático
-                await SaveCodeToFileAsync(code);
-            };
-
-            // Handler para o botão Copiar
-            dialog.SecondaryButtonClick += (s, e) =>
-            {
-                e.Cancel = true; // Prevenir fechamento automático
-                CopyCodeToClipboard(code);
-                
-                // Feedback visual
-                infoText.Text = "✓ Código copiado para a área de transferência!";
-                infoText.Foreground = new SolidColorBrush(Microsoft.UI.Colors.LightGreen);
-                
-                // Restaurar texto após 2 segundos
-                var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
-                timer.Tick += (sender, args) =>
-                {
-                    infoText.Text = $"{lines.Length} linhas | Selecione o texto para copiar";
-                    infoText.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray);
-                    timer.Stop();
-                };
-                timer.Start();
-            };
-
-            await dialog.ShowAsync();
-        }
-
-        /// <summary>
-        /// Salva o código gerado em um arquivo
-        /// </summary>
-        /// <param name="code">Código a ser salvo</param>
-        private async Task SaveCodeToFileAsync(string code)
-        {
-            try
-            {
-                var savePicker = new FileSavePicker();
-                var hwnd = WindowNative.GetWindowHandle(this);
-                InitializeWithWindow.Initialize(savePicker, hwnd);
-
-                savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-                savePicker.FileTypeChoices.Add("Arquivo JavaScript", new[] { ".js" });
-                savePicker.FileTypeChoices.Add("Arquivo de Texto", new[] { ".txt" });
-                savePicker.SuggestedFileName = $"{CurrentProject.ProjectName}_codigo";
-
-                var file = await savePicker.PickSaveFileAsync();
-                if (file != null)
-                {
-                    await FileIO.WriteTextAsync(file, code);
-                    
-                    AddLog($"Código salvo com sucesso em: {file.Path}", LogSeverity.Success, LogCategory.Interface);
-                    await JanelaUtilities.ShowInfoDialogAsync(this, "Arquivo salvo", $"O código foi salvo com sucesso em:\n{file.Path}");
-                }
-            }
-            catch (Exception ex)
-            {
-                await JanelaUtilities.ShowErrorDialogAsync(this, "Erro ao salvar", $"Não foi possível salvar o arquivo: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Copia o código para a área de transferência
-        /// </summary>
-        /// <param name="code">Código a ser copiado</param>
-        private void CopyCodeToClipboard(string code)
-        {
-            try
-            {
-                var dataPackage = new Windows.ApplicationModel.DataTransfer.DataPackage();
-                dataPackage.SetText(code);
-                Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
-                
-                AddLog("Código copiado para a área de transferência", LogSeverity.Success, LogCategory.Interface);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Erro ao copiar para área de transferência: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Obtém o código JavaScript gerado do Blockly
-        /// </summary>
-        /// <returns>Código JavaScript ou string vazia em caso de erro</returns>
-        private async Task<string> GetGeneratedCodeFromJavaScriptAsync()
-        {
-            try
-            {
-                // Executar JavaScript para obter o código gerado
-                var result = await MyWebView2.CoreWebView2.ExecuteScriptAsync(
-                    @"(function() {
-                        try {
-                            if (typeof getGeneratedCode === 'function') {
-                                return getGeneratedCode();
-                            } else if (typeof generateCode === 'function') {
-                                return generateCode();
-                            } else if (typeof workspace !== 'undefined' && workspace) {
-                                javascript.javascriptGenerator.addReservedWords('code');
-                                return javascript.javascriptGenerator.workspaceToCode(workspace);
-                            }
-                            return '';
-                        } catch (e) {
-                            return '';
-                        }
-                    })()");
-
-                // O resultado vem como string JSON, precisamos deserializar
-                if (!string.IsNullOrEmpty(result) && result != "null" && result != "\"\"")
-                {
-                    return JsonSerializer.Deserialize<string>(result) ?? string.Empty;
-                }
-
-                return string.Empty;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Erro ao obter código gerado: {ex.Message}");
-                return string.Empty;
             }
         }
 
@@ -844,6 +562,46 @@ namespace RoboBlocos
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Erro ao obter XML do workspace: {ex.Message}");
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código NQC gerado do Blockly
+        /// </summary>
+        /// <returns>Código NQC ou string vazia em caso de erro</returns>
+        private async Task<string> GetGeneratedCodeFromJavaScriptAsync()
+        {
+            try
+            {
+                // Executar JavaScript para obter o código gerado
+                var result = await MyWebView2.CoreWebView2.ExecuteScriptAsync(
+                    @"(function() {
+                        try {
+                            if (typeof getGeneratedCode === 'function') {
+                                return getGeneratedCode();
+                            } else if (typeof generateCode === 'function') {
+                                return generateCode();
+                            } else if (typeof workspace !== 'undefined' && workspace && typeof nqc !== 'undefined' && nqc.nqcGenerator) {
+                                return nqc.nqcGenerator.workspaceToCode(workspace);
+                            }
+                            return '';
+                        } catch (e) {
+                            return '';
+                        }
+                    })()");
+
+                // O resultado vem como string JSON, precisamos deserializar
+                if (!string.IsNullOrEmpty(result) && result != "null" && result != "\"\"")
+                {
+                    return JsonSerializer.Deserialize<string>(result) ?? string.Empty;
+                }
+
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erro ao obter código gerado: {ex.Message}");
                 return string.Empty;
             }
         }

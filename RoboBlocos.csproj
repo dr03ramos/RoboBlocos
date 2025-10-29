@@ -46,8 +46,9 @@
     <Page Update="SettingsEditor.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
+    <Page Update="CodeExporter.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="IDE.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
