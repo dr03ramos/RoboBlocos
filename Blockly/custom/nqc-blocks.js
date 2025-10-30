@@ -36,7 +36,7 @@ Blockly.Blocks['nqc_ligar_motor_com_potencia'] = {
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(160);
+        this.setColour(210);
         this.setTooltip("Liga motores com direção e potência especificadas");
     }
 };
@@ -52,7 +52,7 @@ Blockly.Blocks['nqc_ligar_motor'] = {
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(160);
+        this.setColour(210);
         this.setTooltip("Liga motores com direção especificada");
     }
 };
@@ -64,7 +64,7 @@ Blockly.Blocks['nqc_desligar_motor'] = {
             .appendField(new Blockly.FieldDropdown(MOTOR_OPTIONS), "MOTOR");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(160);
+        this.setColour(210);
         this.setTooltip("Desliga os motores selecionados");
     }
 };
@@ -80,7 +80,7 @@ Blockly.Blocks['nqc_define_potencia_percent'] = {
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(160);
+        this.setColour(210);
         this.setTooltip("Define a potência dos motores em percentual");
     }
 };
@@ -96,7 +96,7 @@ Blockly.Blocks['nqc_define_sentido'] = {
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(160);
+        this.setColour(210);
         this.setTooltip("Define a direção dos motores");
     }
 };
@@ -115,7 +115,7 @@ Blockly.Blocks['nqc_toca_som'] = {
             ]), "SOM");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(160);
+        this.setColour(210);
         this.setTooltip("Toca um som pré-definido");
     }
 };
@@ -130,7 +130,7 @@ Blockly.Blocks['nqc_define_sensor_toque'] = {
             .appendField("é um sensor de toque");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(200);
+        this.setColour(140);
         this.setTooltip("Define um sensor como sensor de toque");
     }
 };
@@ -143,7 +143,7 @@ Blockly.Blocks['nqc_define_sensor_luz'] = {
             .appendField("é um sensor de luz");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(200);
+        this.setColour(140);
         this.setTooltip("Define um sensor como sensor de luz");
     }
 };
@@ -156,7 +156,7 @@ Blockly.Blocks['nqc_define_sensor_rotacao'] = {
             .appendField("é um sensor de rotação");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(200);
+        this.setColour(140);
         this.setTooltip("Define um sensor como sensor de rotação");
     }
 };
@@ -169,7 +169,7 @@ Blockly.Blocks['nqc_define_sensor_temperatura'] = {
             .appendField("é um sensor de temperatura");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(200);
+        this.setColour(140);
         this.setTooltip("Define um sensor como sensor de temperatura");
     }
 };
@@ -180,7 +180,7 @@ Blockly.Blocks['nqc_valor_sensor_toque'] = {
             .appendField("valor do sensor de toque")
             .appendField(new Blockly.FieldDropdown(SENSOR_OPTIONS), "SENSOR");
         this.setOutput(true, "Boolean");
-        this.setColour(200);
+        this.setColour(140);
         this.setTooltip("Retorna o valor do sensor de toque (verdadeiro se pressionado)");
     }
 };
@@ -191,7 +191,7 @@ Blockly.Blocks['nqc_valor_sensor_luz'] = {
             .appendField("valor do sensor de luz")
             .appendField(new Blockly.FieldDropdown(SENSOR_OPTIONS), "SENSOR");
         this.setOutput(true, "Number");
-        this.setColour(200);
+        this.setColour(140);
         this.setTooltip("Retorna o valor do sensor de luz (0-100)");
     }
 };
@@ -202,7 +202,7 @@ Blockly.Blocks['nqc_valor_sensor_rotacao'] = {
             .appendField("valor do sensor de rotação")
             .appendField(new Blockly.FieldDropdown(SENSOR_OPTIONS), "SENSOR");
         this.setOutput(true, "Number");
-        this.setColour(200);
+        this.setColour(140);
         this.setTooltip("Retorna o valor do sensor de rotação");
     }
 };
@@ -213,7 +213,7 @@ Blockly.Blocks['nqc_valor_sensor_temperatura'] = {
             .appendField("temperatura em °C do sensor")
             .appendField(new Blockly.FieldDropdown(SENSOR_OPTIONS), "SENSOR");
         this.setOutput(true, "Number");
-        this.setColour(200);
+        this.setColour(140);
         this.setTooltip("Retorna a temperatura em graus Celsius do sensor de temperatura");
     }
 };
@@ -230,7 +230,7 @@ Blockly.Blocks['nqc_espera_segundos'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(120);
+        this.setColour(90);
         this.setTooltip("Espera o número especificado de segundos");
     }
 };
@@ -243,7 +243,7 @@ Blockly.Blocks['nqc_espera_ate_que'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(120);
+        this.setColour(90);
         this.setTooltip("Espera até que a condição seja verdadeira");
     }
 };
@@ -260,7 +260,7 @@ Blockly.Blocks['nqc_repita_vezes'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(120);
+        this.setColour(90);
         this.setTooltip("Repete os comandos internos N vezes");
     }
 };
@@ -273,7 +273,7 @@ Blockly.Blocks['nqc_repita_infinitamente'] = {
             .setCheck(null);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(120);
+        this.setColour(90);
         this.setTooltip("Repete os comandos internos infinitamente");
     }
 };
@@ -288,7 +288,7 @@ Blockly.Blocks['nqc_repita_ate_que'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(120);
+        this.setColour(90);
         this.setTooltip("Repete os comandos até que a condição seja verdadeira");
     }
 };
@@ -305,7 +305,7 @@ Blockly.Blocks['nqc_variavel_recebe'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(330);
+        this.setColour(0);
         this.setTooltip("Atribui um valor a uma variável");
     }
 };
@@ -316,7 +316,7 @@ Blockly.Blocks['nqc_valor_variavel'] = {
             .appendField("valor de")
             .appendField(new Blockly.FieldTextInput("x"), "VAR");
         this.setOutput(true, "Number");
-        this.setColour(330);
+        this.setColour(0);
         this.setTooltip("Retorna o valor de uma variável");
     }
 };
@@ -328,7 +328,7 @@ Blockly.Blocks['nqc_numero'] = {
         this.appendDummyInput()
             .appendField(new Blockly.FieldNumber(0), "NUM");
         this.setOutput(true, "Number");
-        this.setColour(230);
+        this.setColour(330);
         this.setTooltip("Um número");
     }
 };
@@ -339,7 +339,7 @@ Blockly.Blocks['nqc_percentual'] = {
             .appendField(new Blockly.FieldNumber(50, 0, 100), "NUM")
             .appendField("%");
         this.setOutput(true, "Percent");
-        this.setColour(230);
+        this.setColour(330);
         this.setTooltip("Um valor percentual entre 0 e 100");
     }
 };
@@ -359,7 +359,7 @@ Blockly.Blocks['nqc_operacao_matematica'] = {
             .setCheck("Number");
         this.setInputsInline(true);
         this.setOutput(true, "Number");
-        this.setColour(230);
+        this.setColour(330);
         this.setTooltip("Operação matemática entre dois valores");
     }
 };
@@ -383,7 +383,7 @@ Blockly.Blocks['nqc_comparacao'] = {
             .setCheck("Number");
         this.setInputsInline(true);
         this.setOutput(true, "Boolean");
-        this.setColour(210);
+        this.setColour(290);
         this.setTooltip("Comparação entre dois valores");
     }
 };
@@ -401,7 +401,7 @@ Blockly.Blocks['nqc_operacao_logica'] = {
             .setCheck("Boolean");
         this.setInputsInline(true);
         this.setOutput(true, "Boolean");
-        this.setColour(210);
+        this.setColour(290);
         this.setTooltip("Operação lógica entre dois valores booleanos");
     }
 };
@@ -413,7 +413,7 @@ Blockly.Blocks['nqc_contrario'] = {
             .appendField("contrário de");
         this.setInputsInline(true);
         this.setOutput(true, "Boolean");
-        this.setColour(210);
+        this.setColour(290);
         this.setTooltip("Inverte o valor booleano");
     }
 };
@@ -426,7 +426,7 @@ Blockly.Blocks['nqc_booleano'] = {
                 ["falso", "FALSE"]
             ]), "BOOL");
         this.setOutput(true, "Boolean");
-        this.setColour(210);
+        this.setColour(290);
         this.setTooltip("Valor booleano");
     }
 };
@@ -445,7 +445,7 @@ Blockly.Blocks['nqc_se_faca'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(290);
+        this.setColour(260);
         this.setTooltip("Executa comandos se a condição for verdadeira");
     }
 };
@@ -466,7 +466,7 @@ Blockly.Blocks['nqc_se_faca_senao'] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(290);
+        this.setColour(260);
         this.setTooltip("Executa comandos se a condição for verdadeira, senão executa outros comandos");
     }
 };
@@ -479,7 +479,7 @@ Blockly.Blocks['nqc_tarefa_principal'] = {
             .appendField("tarefa principal");
         this.appendStatementInput("STATEMENTS")
             .setCheck(null);
-        this.setColour(180);
+        this.setColour(170);
         this.setTooltip("Tarefa principal do programa (task main)");
     },
     
@@ -516,7 +516,7 @@ Blockly.Blocks['nqc_tarefa_nomeada'] = {
             .appendField(new Blockly.FieldTextInput("minhaTarefa"), "NOME");
         this.appendStatementInput("STATEMENTS")
             .setCheck(null);
-        this.setColour(180);
+        this.setColour(170);
         this.setTooltip("Tarefa com nome personalizado");
     },
     
@@ -565,7 +565,7 @@ Blockly.Blocks['nqc_executar_tarefa'] = {
             .appendField(new Blockly.FieldTextInput("minhaTarefa"), "NOME");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(180);
+        this.setColour(170);
         this.setTooltip("Inicia a execução de uma tarefa");
     }
 };
@@ -577,7 +577,7 @@ Blockly.Blocks['nqc_interromper_tarefa'] = {
             .appendField(new Blockly.FieldTextInput("minhaTarefa"), "NOME");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(180);
+        this.setColour(170);
         this.setTooltip("Interrompe a execução de uma tarefa");
     }
 };

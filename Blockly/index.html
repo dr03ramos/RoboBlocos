@@ -26,79 +26,8 @@
     <div id="blocklyDiv"></div>
 
     <xml id="toolbox" style="display: none">
-        <category name="Motores" colour="160">
+        <category name="Carregando...">
             <block type="nqc_ligar_motor"></block>
-            <block type="nqc_ligar_motor_com_potencia">
-                <value name="POTENCIA">
-                    <shadow type="nqc_percentual">
-                        <field name="NUM">100</field>
-                    </shadow>
-                </value>
-            </block>
-            <block type="nqc_define_potencia_percent">
-                <value name="POTENCIA">
-                    <shadow type="nqc_percentual">
-                        <field name="NUM">50</field>
-                    </shadow>
-                </value>
-            </block>
-            <block type="nqc_define_sentido"></block>
-            <block type="nqc_desligar_motor"></block>
-            <block type="nqc_toca_som"></block>
-        </category>
-        <category name="Sensores" colour="200">
-            <block type="nqc_define_sensor_toque"></block>
-            <block type="nqc_define_sensor_luz"></block>
-            <block type="nqc_define_sensor_rotacao"></block>
-            <block type="nqc_define_sensor_temperatura"></block>
-            <block type="nqc_valor_sensor_toque"></block>
-            <block type="nqc_valor_sensor_luz"></block>
-            <block type="nqc_valor_sensor_rotacao"></block>
-            <block type="nqc_valor_sensor_temperatura"></block>
-        </category>
-        <category name="Controles" colour="120">
-            <block type="nqc_espera_segundos">
-                <value name="SECONDS">
-                    <shadow type="nqc_numero">
-                        <field name="NUM">1</field>
-                    </shadow>
-                </value>
-            </block>
-            <block type="nqc_espera_ate_que"></block>
-            <block type="nqc_repita_vezes">
-                <value name="TIMES">
-                    <shadow type="nqc_numero">
-                        <field name="NUM">10</field>
-                    </shadow>
-                </value>
-            </block>
-            <block type="nqc_repita_infinitamente"></block>
-            <block type="nqc_repita_ate_que"></block>
-        </category>
-        <category name="Variáveis" colour="330">
-            <block type="nqc_variavel_recebe"></block>
-            <block type="nqc_valor_variavel"></block>
-        </category>
-        <category name="Matemática" colour="230">
-            <block type="nqc_numero">
-                <field name="NUM">0</field>
-            </block>
-            <block type="nqc_operacao_matematica"></block>
-        </category>
-        <category name="Lógica" colour="210">
-            <block type="nqc_comparacao"></block>
-            <block type="nqc_operacao_logica"></block>
-            <block type="nqc_contrario"></block>
-            <block type="nqc_booleano"></block>
-        </category>
-        <category name="Condicionais" colour="290">
-            <block type="nqc_se_faca"></block>
-            <block type="nqc_se_faca_senao"></block>
-        </category>
-        <category name="Tarefas" colour="180">
-            <block type="nqc_tarefa_principal"></block>
-            <block type="nqc_tarefa_nomeada"></block>
-            <block type="nqc_executar_tarefa"></block>
         </category>
     </xml>
 
@@ -148,21 +77,21 @@
             var toolboxXml = '<xml id="toolbox">';
             
             // Categoria Motores
-            toolboxXml += '<category name="Motores" colour="160">';
+            toolboxXml += '<category name="Motores" colour="210">';
             toolboxXml += '<block type="nqc_ligar_motor"></block>';
             toolboxXml += '<block type="nqc_ligar_motor_com_potencia">';
             toolboxXml += '<value name="POTENCIA"><shadow type="nqc_percentual"><field name="NUM">100</field></shadow></value>';
             toolboxXml += '</block>';
+            toolboxXml += '<block type="nqc_define_sentido"></block>';
             toolboxXml += '<block type="nqc_define_potencia_percent">';
             toolboxXml += '<value name="POTENCIA"><shadow type="nqc_percentual"><field name="NUM">50</field></shadow></value>';
             toolboxXml += '</block>';
-            toolboxXml += '<block type="nqc_define_sentido"></block>';
             toolboxXml += '<block type="nqc_desligar_motor"></block>';
             toolboxXml += '<block type="nqc_toca_som"></block>';
             toolboxXml += '</category>';
             
             // Categoria Sensores
-            toolboxXml += '<category name="Sensores" colour="200">';
+            toolboxXml += '<category name="Sensores" colour="140">';
             toolboxXml += '<block type="nqc_define_sensor_toque"></block>';
             toolboxXml += '<block type="nqc_define_sensor_luz"></block>';
             toolboxXml += '<block type="nqc_define_sensor_rotacao"></block>';
@@ -174,7 +103,7 @@
             toolboxXml += '</category>';
             
             // Categoria Controles
-            toolboxXml += '<category name="Controles" colour="120">';
+            toolboxXml += '<category name="Controles" colour="90">';
             toolboxXml += '<block type="nqc_espera_segundos">';
             toolboxXml += '<value name="SECONDS"><shadow type="nqc_numero"><field name="NUM">1</field></shadow></value>';
             toolboxXml += '</block>';
@@ -187,7 +116,7 @@
             toolboxXml += '</category>';
             
             // Categoria Variáveis (DINÂMICA)
-            toolboxXml += '<category name="Variáveis" colour="330">';
+            toolboxXml += '<category name="Variáveis" colour="0">';
             toolboxXml += '<block type="nqc_variavel_recebe"></block>';
             if (variables.length == 0) {
                 toolboxXml += '<block type="nqc_valor_variavel"><field name="VAR">x</field></block>';
@@ -202,13 +131,13 @@
             toolboxXml += '</category>';
             
             // Categoria Matemática
-            toolboxXml += '<category name="Matemática" colour="230">';
+            toolboxXml += '<category name="Matemática" colour="330">';
             toolboxXml += '<block type="nqc_numero"><field name="NUM">0</field></block>';
             toolboxXml += '<block type="nqc_operacao_matematica"></block>';
             toolboxXml += '</category>';
             
             // Categoria Lógica
-            toolboxXml += '<category name="Lógica" colour="210">';
+            toolboxXml += '<category name="Lógica" colour="290">';
             toolboxXml += '<block type="nqc_comparacao"></block>';
             toolboxXml += '<block type="nqc_operacao_logica"></block>';
             toolboxXml += '<block type="nqc_contrario"></block>';
@@ -216,13 +145,13 @@
             toolboxXml += '</category>';
             
             // Categoria Condicionais
-            toolboxXml += '<category name="Condicionais" colour="290">';
+            toolboxXml += '<category name="Condicionais" colour="260">';
             toolboxXml += '<block type="nqc_se_faca"></block>';
             toolboxXml += '<block type="nqc_se_faca_senao"></block>';
             toolboxXml += '</category>';
             
             // Categoria Tarefas (DINÂMICA)
-            toolboxXml += '<category name="Tarefas" colour="180">';
+            toolboxXml += '<category name="Tarefas" colour="170">';
             toolboxXml += '<block type="nqc_tarefa_principal"></block>';
             // Bloco "tarefa nomeada" com nome sugerido único
             toolboxXml += '<block type="nqc_tarefa_nomeada"><field name="NOME">' + suggestedTaskName + '</field></block>';
