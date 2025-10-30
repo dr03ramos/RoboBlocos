@@ -28,6 +28,12 @@ namespace RoboBlocos
 
             AppWindow.SetPresenter(presenter);
 
+            // Aplicar o tema salvo globalmente
+            ThemeUtilities.ApplyTheme(this);
+            
+            // Atualizar o botão de tema para refletir o estado atual
+            UpdateThemeButton();
+
             // Carregar projetos recentes quando a janela é inicializada
             LoadRecentProjects();
         }
@@ -46,14 +52,16 @@ namespace RoboBlocos
                 // Define explicitamente o estado como New
                 projectSettings.State = ProjectState.New;
 
-                // Capturar bounds da janela atual antes de fechar
+                // Capturar bounds e tema da janela atual antes de fechar
                 var bounds = TamanhoJanelaUtilities.CaptureWindowBounds(this);
+                ThemeUtilities.CaptureTheme(this);
 
                 // Fechar a janela principal e abrir o IDE
                 var ide = new IDE(projectSettings);
                 
-                // Aplicar os bounds capturados ao IDE
+                // Aplicar os bounds e tema capturados ao IDE
                 TamanhoJanelaUtilities.ApplyWindowBounds(ide, bounds);
+                ThemeUtilities.ApplyTheme(ide);
                 
                 this.Close();
             }
@@ -93,14 +101,16 @@ namespace RoboBlocos
                     return;
                 }
 
-                // Capturar bounds da janela atual antes de fechar
+                // Capturar bounds e tema da janela atual antes de fechar
                 var bounds = TamanhoJanelaUtilities.CaptureWindowBounds(this);
+                ThemeUtilities.CaptureTheme(this);
 
                 // Abrir IDE com o projeto (estado será Saved após LoadProjectAsync)
                 var ide = new IDE(settings);
                 
-                // Aplicar os bounds capturados ao IDE
+                // Aplicar os bounds e tema capturados ao IDE
                 TamanhoJanelaUtilities.ApplyWindowBounds(ide, bounds);
+                ThemeUtilities.ApplyTheme(ide);
                 
                 this.Close();
             }
@@ -108,6 +118,27 @@ namespace RoboBlocos
             {
                 await JanelaUtilities.ShowSimpleDialogAsync(this, "Erro", "Falha ao importar o projeto.");
             }
+        }
+
+        /// <summary>
+        /// Manipula o clique no botão de alternância de tema
+        /// </summary>
+        private void ThemeButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Alternar o tema
+            ThemeUtilities.ToggleTheme(this);
+            
+            // Atualizar o botão com o ícone e texto apropriados
+            UpdateThemeButton();
+        }
+
+        /// <summary>
+        /// Atualiza o botão de tema com o ícone e texto apropriados baseado no tema atual
+        /// </summary>
+        private void UpdateThemeButton()
+        {
+            var currentTheme = ThemeUtilities.GetCurrentTheme(this);
+            ThemeUtilities.UpdateThemeButton(ThemeButton, currentTheme);
         }
     }
 }

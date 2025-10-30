@@ -14,51 +14,70 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid Padding="60">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="75"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+
+        <!-- CommandBar no topo -->
+        <Grid Grid.Row="0" Height="44" VerticalAlignment="Center" Margin="0,28,0,-70" HorizontalAlignment="Stretch">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
+                    <AppBarButton x:Name="ThemeButton" 
+                                  Label="Claro" 
+                                  ToolTipService.ToolTip="Alternar entre modo claro e escuro"
+                                  Click="ThemeButton_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon Glyph="&#xE706;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Icon="Help" Label="Tutoriais">
+                    </AppBarButton>
+                </CommandBar>
+            </StackPanel>
+        </Grid>
+
+        <!-- Conteúdo principal -->
+        <Grid Grid.Row="1" Padding="60">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="75"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
             
-        <TextBlock Grid.Row="0" Text="Boas-vindas ao RoboBlocos" FontSize="28" FontWeight="SemiBold" />
+            <TextBlock Grid.Row="0" Text="Boas-vindas ao RoboBlocos" FontSize="28" FontWeight="SemiBold" />
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="600" />
-            </Grid.ColumnDefinitions>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="600" />
+                </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Left" Spacing="12" Margin="0,10,0,0">
-                <Button x:Name="NewProgramButton" ToolTipService.ToolTip="Criar novo programa do zero"  Style="{StaticResource AccentButtonStyle}" Click="NewProgramButton_Click">
-                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <FontIcon Glyph="&#xE710;" />
-                        <TextBlock Text="Novo programa" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
+                <StackPanel Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Left" Spacing="12" Margin="0,10,0,0">
+                    <Button x:Name="NewProgramButton" ToolTipService.ToolTip="Criar novo programa do zero"  Style="{StaticResource AccentButtonStyle}" Click="NewProgramButton_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE710;" />
+                            <TextBlock Text="Novo programa" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
 
-                <Button x:Name="ImportProgramButton" ToolTipService.ToolTip="Importar programa existente" Click="ImportProgramButton_Click">
-                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <FontIcon Glyph="&#xE8B5;" />
-                        <TextBlock Text="Importar programa" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-
-                <Button ToolTipService.ToolTip="Exibir área de tutoriais">
-                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <FontIcon Glyph="&#xE9CE;" />
-                        <TextBlock Text="Tutoriais" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
-            </StackPanel>
-
-            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Stretch" Grid.Column="1" Margin="24,0,0,0">
-                <TextBlock Text="Projetos recentes" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12" />
-
-                <!-- Container dinâmico para projetos recentes -->
-                <StackPanel x:Name="RecentProjectsContainer" Spacing="4">
-                    <!-- Os projetos serão adicionados programaticamente aqui -->
+                    <Button x:Name="ImportProgramButton" ToolTipService.ToolTip="Importar programa existente" Click="ImportProgramButton_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE8B5;" />
+                            <TextBlock Text="Importar programa" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
-            </StackPanel>
+
+                <StackPanel VerticalAlignment="Top" HorizontalAlignment="Stretch" Grid.Column="1" Margin="24,0,0,0">
+                    <TextBlock Text="Projetos recentes" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12" />
+
+                    <!-- Container dinâmico para projetos recentes -->
+                    <StackPanel x:Name="RecentProjectsContainer" Spacing="4">
+                        <!-- Os projetos serão adicionados programaticamente aqui -->
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

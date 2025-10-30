@@ -124,6 +124,14 @@ namespace RoboBlocos
                 Placement = Microsoft.UI.Xaml.Controls.Primitives.FlyoutPlacementMode.Bottom
             };
 
+            var openItem = new MenuFlyoutItem
+            {
+                Text = "Abrir",
+                Icon = new FontIcon { Glyph = "\uE76C" } // ícone de chevron à direita
+            };
+            openItem.Click += (s, e) => OpenProject(project);
+            menuFlyout.Items.Add(openItem);
+
             var renameItem = new MenuFlyoutItem
             {
                 Text = "Renomear",
@@ -194,14 +202,16 @@ namespace RoboBlocos
                 var success = await ProjectService.OpenProjectAsync(project);
                 if (success)
                 {
-                    // Capturar bounds da janela atual antes de fechar
+                    // Capturar bounds e tema da janela atual antes de fechar
                     var bounds = TamanhoJanelaUtilities.CaptureWindowBounds(this);
+                    ThemeUtilities.CaptureTheme(this);
 
                     // Fechar a janela principal e abrir o IDE
                     var ide = new IDE(project);
                     
-                    // Aplicar os bounds capturados ao IDE
+                    // Aplicar os bounds e tema capturados ao IDE
                     TamanhoJanelaUtilities.ApplyWindowBounds(ide, bounds);
+                    ThemeUtilities.ApplyTheme(ide);
                     
                     this.Close();
                 }

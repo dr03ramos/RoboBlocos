@@ -63,6 +63,12 @@ namespace RoboBlocos
             CurrentProject = projectSettings;
             UpdateWindowTitle();
 
+            // Aplicar o tema salvo globalmente
+            ThemeUtilities.ApplyTheme(this);
+            
+            // Atualizar o botão de tema para refletir o estado atual
+            UpdateThemeButton();
+
             _ = InitializeWebViewAsync();
         }
 
@@ -320,8 +326,13 @@ namespace RoboBlocos
             {
                 // Prosseguir com o fechamento e abrir MainWindow
                 var bounds = TamanhoJanelaUtilities.CaptureWindowBounds(this);
+                ThemeUtilities.CaptureTheme(this);
+                
                 var mainWindow = new MainWindow();
+                
                 TamanhoJanelaUtilities.ApplyWindowBounds(mainWindow, bounds);
+                ThemeUtilities.ApplyTheme(mainWindow);
+                
                 this.Close();
             }
         }
@@ -399,13 +410,15 @@ namespace RoboBlocos
         /// </summary>
         private void GoBackToMainWindow()
         {
-            // Capturar bounds da janela IDE atual antes de fechar
+            // Capturar bounds e tema da janela IDE atual antes de fechar
             var bounds = TamanhoJanelaUtilities.CaptureWindowBounds(this);
+            ThemeUtilities.CaptureTheme(this);
 
             var mainWindow = new MainWindow();
             
-            // Aplicar os bounds capturados à MainWindow
+            // Aplicar os bounds e tema capturados à MainWindow
             TamanhoJanelaUtilities.ApplyWindowBounds(mainWindow, bounds);
+            ThemeUtilities.ApplyTheme(mainWindow);
             
             this.Close();
         }
@@ -711,6 +724,27 @@ namespace RoboBlocos
         private void AddLog(string message, string substring, LogSeverity severity, LogCategory category)
         {
             AddLog(message + new string(' ', 80) + substring, severity, category);
+        }
+       
+        /// <summary>
+        /// Manipula o clique no botão de alternância de tema
+        /// </summary>
+        private void ThemeButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Alternar o tema
+            ThemeUtilities.ToggleTheme(this);
+            
+            // Atualizar o botão com o ícone e texto apropriados
+            UpdateThemeButton();
+        }
+
+        /// <summary>
+        /// Atualiza o botão de tema com o ícone e texto apropriados baseado no tema atual
+        /// </summary>
+        private void UpdateThemeButton()
+        {
+            var currentTheme = ThemeUtilities.GetCurrentTheme(this);
+            ThemeUtilities.UpdateThemeButton(ThemeButton, currentTheme);
         }
     }
 }
