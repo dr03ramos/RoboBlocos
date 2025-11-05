@@ -32,7 +32,10 @@
                             <FontIcon Glyph="&#xE706;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Icon="Help" Label="Tutoriais">
+                    <AppBarButton Icon="Help" 
+                                  Label="Tutoriais"
+                                  ToolTipService.ToolTip="Abrir janela de tutoriais"
+                                  Click="TutorialsButton_Click">
                     </AppBarButton>
                 </CommandBar>
             </StackPanel>

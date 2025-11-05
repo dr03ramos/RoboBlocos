@@ -140,5 +140,14 @@ namespace RoboBlocos
             var currentTheme = ThemeUtilities.GetCurrentTheme(this);
             ThemeUtilities.UpdateThemeButton(ThemeButton, currentTheme);
         }
+
+        /// <summary>
+        /// Manipula o clique no botão de tutoriais
+        /// </summary>
+        private void TutorialsButton_Click(object sender, RoutedEventArgs e)
+        {
+            var tutorialsWindow = new TutorialsWindow();
+            tutorialsWindow.Activate();
+        }
     }
 }
