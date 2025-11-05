@@ -77,7 +77,7 @@
             var toolboxXml = '<xml id="toolbox">';
             
             // Categoria Motores
-            toolboxXml += '<category name="Motores" colour="210">';
+            toolboxXml += '<category name="Motores" colour="%{BKY_LISTS_HUE}">';
             toolboxXml += '<block type="nqc_ligar_motor"></block>';
             toolboxXml += '<block type="nqc_ligar_motor_com_potencia">';
             toolboxXml += '<value name="POTENCIA"><shadow type="nqc_percentual"><field name="NUM">100</field></shadow></value>';
@@ -91,7 +91,7 @@
             toolboxXml += '</category>';
             
             // Categoria Sensores
-            toolboxXml += '<category name="Sensores" colour="140">';
+            toolboxXml += '<category name="Sensores" colour="%{BKY_TEXTS_HUE}">';
             toolboxXml += '<block type="nqc_define_sensor_toque"></block>';
             toolboxXml += '<block type="nqc_define_sensor_luz"></block>';
             toolboxXml += '<block type="nqc_define_sensor_rotacao"></block>';
@@ -103,7 +103,7 @@
             toolboxXml += '</category>';
             
             // Categoria Controles
-            toolboxXml += '<category name="Controles" colour="90">';
+            toolboxXml += '<category name="Controles" colour="%{BKY_LOOPS_HUE}">';
             toolboxXml += '<block type="nqc_espera_segundos">';
             toolboxXml += '<value name="SECONDS"><shadow type="nqc_numero"><field name="NUM">1</field></shadow></value>';
             toolboxXml += '</block>';
@@ -116,7 +116,7 @@
             toolboxXml += '</category>';
             
             // Categoria Variáveis (DINÂMICA)
-            toolboxXml += '<category name="Variáveis" colour="0">';
+            toolboxXml += '<category name="Variáveis" colour="%{BKY_VARIABLES_HUE}">';
             toolboxXml += '<block type="nqc_variavel_recebe"></block>';
             if (variables.length == 0) {
                 toolboxXml += '<block type="nqc_valor_variavel"><field name="VAR">x</field></block>';
@@ -131,13 +131,13 @@
             toolboxXml += '</category>';
             
             // Categoria Matemática
-            toolboxXml += '<category name="Matemática" colour="330">';
+            toolboxXml += '<category name="Matemática" colour="%{BKY_MATH_HUE}">';
             toolboxXml += '<block type="nqc_numero"><field name="NUM">0</field></block>';
             toolboxXml += '<block type="nqc_operacao_matematica"></block>';
             toolboxXml += '</category>';
             
             // Categoria Lógica
-            toolboxXml += '<category name="Lógica" colour="290">';
+            toolboxXml += '<category name="Lógica" colour="%{BKY_LOGIC_HUE}">';
             toolboxXml += '<block type="nqc_comparacao"></block>';
             toolboxXml += '<block type="nqc_operacao_logica"></block>';
             toolboxXml += '<block type="nqc_contrario"></block>';
@@ -145,13 +145,13 @@
             toolboxXml += '</category>';
             
             // Categoria Condicionais
-            toolboxXml += '<category name="Condicionais" colour="260">';
+            toolboxXml += '<category name="Condicionais" colour="%{BKY_COLOUR_HUE}">';
             toolboxXml += '<block type="nqc_se_faca"></block>';
             toolboxXml += '<block type="nqc_se_faca_senao"></block>';
             toolboxXml += '</category>';
             
             // Categoria Tarefas (DINÂMICA)
-            toolboxXml += '<category name="Tarefas" colour="170">';
+            toolboxXml += '<category name="Tarefas" colour="%{BKY_PROCEDURES_HUE}">';
             toolboxXml += '<block type="nqc_tarefa_principal"></block>';
             // Bloco "tarefa nomeada" com nome sugerido único
             toolboxXml += '<block type="nqc_tarefa_nomeada"><field name="NOME">' + suggestedTaskName + '</field></block>';
@@ -174,7 +174,10 @@
             toolboxXml += '</category>';
             
             toolboxXml += '</xml>';
-            
+
+            Blockly.utils.colour.setHsvSaturation(0.6);
+            Blockly.utils.colour.setHsvValue(0.65);
+
             // Atualizar a toolbox
             var toolboxDom = Blockly.utils.xml.textToDom(toolboxXml);
             workspace.updateToolbox(toolboxDom);
