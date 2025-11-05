@@ -1,3 +1,4 @@
+using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -38,6 +39,9 @@ namespace RoboBlocos.Utilities
             {
                 rootElement.RequestedTheme = _currentTheme;
                 System.Diagnostics.Debug.WriteLine($"[ThemeUtilities] Tema aplicado: {_currentTheme}");
+                
+                // Atualizar os botões de legenda da janela (minimize, maximize, close)
+                UpdateWindowCaptionButtons(window);
             }
         }
 
@@ -91,6 +95,11 @@ namespace RoboBlocos.Utilities
                 
                 // Atualizar o tema global
                 _currentTheme = newTheme;
+                
+                // Atualizar os botões de legenda da janela
+                UpdateWindowCaptionButtons(window);
+                
+                System.Diagnostics.Debug.WriteLine($"[ThemeUtilities] Tema alternado para: {newTheme}");
             }
         }
 
@@ -110,6 +119,66 @@ namespace RoboBlocos.Utilities
             {
                 button.Icon = new FontIcon { Glyph = "\uE708" }; // Lua
                 button.Label = "Escuro";
+            }
+        }
+
+        /// <summary>
+        /// Aplica o tema atual a um ContentDialog
+        /// </summary>
+        /// <param name="dialog">O diálogo a ser tematizado</param>
+        public static void ApplyThemeToDialog(ContentDialog dialog)
+        {
+            // Aplicar o tema atual ao diálogo
+            dialog.RequestedTheme = _currentTheme;
+            System.Diagnostics.Debug.WriteLine($"[ThemeUtilities] Tema aplicado ao diálogo: {_currentTheme}");
+        }
+
+        /// <summary>
+        /// Atualiza os botões de legenda da janela (minimize, maximize, close) para corresponder ao tema
+        /// </summary>
+        /// <param name="window">A janela cujos botões de legenda serão atualizados</param>
+        private static void UpdateWindowCaptionButtons(Window window)
+        {
+            try
+            {
+                if (window.Content is FrameworkElement rootElement)
+                {
+                    var actualTheme = rootElement.ActualTheme;
+                    
+                    // Determinar se devemos usar tema claro ou escuro para os botões
+                    bool useLightTheme = actualTheme == ElementTheme.Light;
+                    
+                    // Atualizar a cor dos botões de legenda
+                    if (window.AppWindow?.TitleBar != null)
+                    {
+                        var titleBar = window.AppWindow.TitleBar;
+                        
+                        if (useLightTheme)
+                        {
+                            // Tema claro: botões escuros em fundo claro
+                            titleBar.ButtonForegroundColor = Microsoft.UI.Colors.Black;
+                            titleBar.ButtonHoverForegroundColor = Microsoft.UI.Colors.Black;
+                            titleBar.ButtonHoverBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(20, 0, 0, 0);
+                            titleBar.ButtonPressedForegroundColor = Microsoft.UI.Colors.Black;
+                            titleBar.ButtonPressedBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(40, 0, 0, 0);
+                        }
+                        else
+                        {
+                            // Tema escuro: botões claros em fundo escuro
+                            titleBar.ButtonForegroundColor = Microsoft.UI.Colors.White;
+                            titleBar.ButtonHoverForegroundColor = Microsoft.UI.Colors.White;
+                            titleBar.ButtonHoverBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(20, 255, 255, 255);
+                            titleBar.ButtonPressedForegroundColor = Microsoft.UI.Colors.White;
+                            titleBar.ButtonPressedBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(40, 255, 255, 255);
+                        }
+                        
+                        System.Diagnostics.Debug.WriteLine($"[ThemeUtilities] Botões de legenda atualizados para tema: {(useLightTheme ? "Claro" : "Escuro")}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ThemeUtilities] Erro ao atualizar botões de legenda: {ex.Message}");
             }
         }
     }

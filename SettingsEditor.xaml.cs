@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using RoboBlocos.Models;
+using RoboBlocos.Utilities;
 using System;
 
 namespace RoboBlocos
@@ -22,6 +23,9 @@ namespace RoboBlocos
 
             // Inicializa as configurações do projeto
             ProjectSettings = projectSettings;
+
+            // Aplicar o tema atual ao diálogo
+            ThemeUtilities.ApplyThemeToDialog(this);
 
             // Configura os manipuladores de eventos para os botões
             this.PrimaryButtonClick += SettingsEditor_PrimaryButtonClick;

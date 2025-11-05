@@ -607,7 +607,18 @@ namespace RoboBlocos
                 // O resultado vem como string JSON, precisamos deserializar
                 if (!string.IsNullOrEmpty(result) && result != "null" && result != "\"\"")
                 {
-                    return JsonSerializer.Deserialize<string>(result) ?? string.Empty;
+                    var code = JsonSerializer.Deserialize<string>(result) ?? string.Empty;
+
+                    // Remover todas as linhas vazias do início
+                    code = code.TrimStart('\r', '\n', ' ', '\t');
+
+                    // Remover todas as linhas vazias e espaços em branco do final
+                    code = code.TrimEnd('\r', '\n', ' ', '\t');
+
+                    // Adicionar exatamente uma linha vazia ao final
+                    code += "\n";
+
+                    return code;
                 }
 
                 return string.Empty;

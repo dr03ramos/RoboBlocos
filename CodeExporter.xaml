@@ -38,7 +38,7 @@
                 CornerRadius="8"
                 BorderBrush="#3C3C3C"
                 BorderThickness="1"
-                Margin="0,0,0,12">
+                Margin="0,0,305,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>

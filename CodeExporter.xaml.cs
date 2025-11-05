@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using RoboBlocos.Models;
+using RoboBlocos.Utilities;
 using System;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
@@ -29,6 +30,9 @@ namespace RoboBlocos
             _parentWindow = parentWindow;
             _projectSettings = projectSettings;
             _code = code;
+
+            // Aplicar o tema atual ao diálogo
+            ThemeUtilities.ApplyThemeToDialog(this);
 
             // Configurar manipuladores de eventos
             this.PrimaryButtonClick += CodeExporter_PrimaryButtonClick;

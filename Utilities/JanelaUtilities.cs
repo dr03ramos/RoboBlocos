@@ -26,6 +26,7 @@ namespace RoboBlocos.Utilities
                 CloseButtonText = "OK",
                 XamlRoot = window.Content.XamlRoot
             };
+            ThemeUtilities.ApplyThemeToDialog(dialog);
             await dialog.ShowAsync();
         }
 
@@ -48,6 +49,7 @@ namespace RoboBlocos.Utilities
                 CloseButtonText = cancelText,
                 XamlRoot = window.Content.XamlRoot
             };
+            ThemeUtilities.ApplyThemeToDialog(dialog);
             var result = await dialog.ShowAsync();
             return result == ContentDialogResult.Primary;
         }
@@ -68,6 +70,7 @@ namespace RoboBlocos.Utilities
                 DefaultButton = ContentDialogButton.Primary,
                 XamlRoot = window.Content.XamlRoot
             };
+            ThemeUtilities.ApplyThemeToDialog(dialog);
             await dialog.ShowAsync();
         }
 
@@ -87,6 +90,7 @@ namespace RoboBlocos.Utilities
                 DefaultButton = ContentDialogButton.Primary,
                 XamlRoot = window.Content.XamlRoot
             };
+            ThemeUtilities.ApplyThemeToDialog(dialog);
             await dialog.ShowAsync();
         }
 
@@ -108,6 +112,7 @@ namespace RoboBlocos.Utilities
                 DefaultButton = ContentDialogButton.Primary,
                 XamlRoot = window.Content.XamlRoot
             };
+            ThemeUtilities.ApplyThemeToDialog(dialog);
 
             // Habilitar o botão 'Renomear' apenas quando houver texto válido
             void UpdatePrimaryEnabled()
@@ -142,6 +147,7 @@ namespace RoboBlocos.Utilities
                 DefaultButton = ContentDialogButton.Primary,
                 XamlRoot = window.Content.XamlRoot
             };
+            ThemeUtilities.ApplyThemeToDialog(dialog);
             return await dialog.ShowAsync();
         }
 
@@ -155,6 +161,7 @@ namespace RoboBlocos.Utilities
         {
             var settingsEditor = new SettingsEditor(projectSettings);
             settingsEditor.XamlRoot = window.Content.XamlRoot;
+            ThemeUtilities.ApplyThemeToDialog(settingsEditor);
             
             var result = await settingsEditor.ShowAsync();
             return result == ContentDialogResult.Primary ? settingsEditor.ProjectSettings : projectSettings;
