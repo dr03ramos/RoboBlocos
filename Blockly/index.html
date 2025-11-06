@@ -34,6 +34,120 @@
     <script src="custom/nqc-blocks.js"></script>
     <script>
         /**
+         * Altera a nomenclatura dos blocos entre 'iniciante' e 'tecnico'
+         * @param {string} modo - 'iniciante' ou 'tecnico'
+         */
+        function alterarNomenclatura(modo) {
+            console.log('[alterarNomenclatura] Alterando para:', modo);
+            
+            // Validar modo
+            if (modo !== 'iniciante' && modo !== 'tecnico' && modo !== 'técnico') {
+                console.error('[alterarNomenclatura] Modo inválido:', modo);
+                return;
+            }
+            
+            // Normalizar "técnico" para "tecnico" (sem acento)
+            if (modo === 'técnico') {
+                modo = 'tecnico';
+            }
+            
+            // Atualizar variável global
+            nomenclaturaAtual = modo;
+            
+            // 1. Atualizar blocos no workspace
+            var todosOsBlocos = workspace.getAllBlocks(false);
+            console.log('[alterarNomenclatura] Atualizando', todosOsBlocos.length, 'blocos');
+            
+            todosOsBlocos.forEach(function(block) {
+                atualizarTextosBloco(block);
+            });
+            
+            // 2. Forçar re-render de todos os blocos
+            workspace.getAllBlocks(false).forEach(function(block) {
+                block.render();
+            });
+            
+            // 3. Atualizar toolbox
+            updateDynamicToolbox();
+            
+            console.log('[alterarNomenclatura] Concluído');
+        }
+        
+        /**
+         * Atualiza os textos de um bloco específico baseado na nomenclatura atual
+         * @param {Blockly.Block} block - Bloco a ser atualizado
+         */
+        function atualizarTextosBloco(block) {
+            if (!block || !block.type) {
+                return;
+            }
+            
+            var blockType = block.type;
+            
+            // Lista de blocos que precisam ser atualizados
+            var blocksToUpdate = [
+                'nqc_ligar_motor_com_potencia',
+                'nqc_ligar_motor',
+                'nqc_desligar_motor',
+                'nqc_define_potencia_percent',
+                'nqc_define_sentido',
+                'nqc_toca_som',
+                'nqc_define_sensor_toque',
+                'nqc_define_sensor_luz',
+                'nqc_define_sensor_rotacao',
+                'nqc_define_sensor_temperatura',
+                'nqc_valor_sensor_toque',
+                'nqc_valor_sensor_luz',
+                'nqc_valor_sensor_rotacao',
+                'nqc_valor_sensor_temperatura',
+                'nqc_espera_segundos',
+                'nqc_espera_ate_que',
+                'nqc_repita_vezes',
+                'nqc_repita_infinitamente',
+                'nqc_repita_ate_que',
+                'nqc_variavel_recebe',
+                'nqc_valor_variavel',
+                'nqc_contrario',
+                'nqc_se_faca',
+                'nqc_se_faca_senao',
+                'nqc_tarefa_principal',
+                'nqc_tarefa_nomeada',
+                'nqc_executar_tarefa',
+                'nqc_interromper_tarefa'
+            ];
+            
+            // Se o bloco não está na lista de blocos a serem atualizados, ignorar
+            if (blocksToUpdate.indexOf(blockType) === -1) {
+                return;
+            }
+            
+            // Obter novo texto baseado na nomenclatura atual
+            var novoTexto = getTextoBloco(blockType);
+            
+            // Se não há texto para este bloco, ignorar
+            if (!novoTexto) {
+                return;
+            }
+            
+            // Percorrer todos os inputs do bloco
+            for (var i = 0; i < block.inputList.length; i++) {
+                var input = block.inputList[i];
+                
+                // Percorrer todos os fields do input
+                for (var j = 0; j < input.fieldRow.length; j++) {
+                    var field = input.fieldRow[j];
+                    
+                    // Se for um campo de texto (label) e for o primeiro do primeiro input
+                    if (field instanceof Blockly.FieldLabel && i === 0 && j === 0) {
+                        // Atualizar apenas o primeiro label (título do bloco)
+                        field.setValue(novoTexto);
+                        return; // Sair após atualizar o primeiro label
+                    }
+                }
+            }
+        }
+
+        /**
          * Atualiza a toolbox dinamicamente com base nos blocos no workspace
          */
         function updateDynamicToolbox() {
@@ -75,7 +189,7 @@
             
             // Criar XML da toolbox dinamicamente
             var toolboxXml = '<xml id="toolbox">';
-            
+
             // Categoria Motores
             toolboxXml += '<category name="Motores" colour="%{BKY_LISTS_HUE}">';
             toolboxXml += '<block type="nqc_ligar_motor"></block>';

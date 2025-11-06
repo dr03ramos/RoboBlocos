@@ -648,7 +648,7 @@ namespace RoboBlocos
         /// <summary>
         /// Manipula a mudança de seleção no SelectorBar de nomenclatura
         /// </summary>
-        private void NomenclatureSelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
+        private async void NomenclatureSelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
         {
             var selectedItem = sender.SelectedItem as SelectorBarItem;
             if (selectedItem != null)
@@ -656,10 +656,29 @@ namespace RoboBlocos
                 string nomenclatura = selectedItem.Text;
                 System.Diagnostics.Debug.WriteLine($"[NomenclatureSelectorBar] Nomenclatura selecionada: {nomenclatura}");
 
-                // Só adicionar log após a inicialização (não na primeira seleção)
+                // Só adicionar log e executar JavaScript após a inicialização (não na primeira seleção)
                 if (_nomenclatureInitialized)
                 {
+                    // Verificar se o WebView2 está pronto antes de executar JavaScript
+                    if (MyWebView2?.CoreWebView2 == null)
+                    {
+                        System.Diagnostics.Debug.WriteLine("[NomenclatureSelectorBar] WebView2 não está pronto.");
+                        return;
+                    }
+
                     AddLog($"Alteração de nomenclatura para {nomenclatura}.", LogSeverity.Informational, LogCategory.Interface);
+                    
+                    // Chamar função JavaScript para atualizar os blocos
+                    try
+                    {
+                        string modoJS = nomenclatura.ToLower(); // "iniciante" ou "técnico"
+                        await MyWebView2.CoreWebView2.ExecuteScriptAsync($"alterarNomenclatura('{modoJS}');");
+                        System.Diagnostics.Debug.WriteLine($"[NomenclatureSelectorBar] Nomenclatura alterada para: {modoJS}");
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[NomenclatureSelectorBar] Erro: {ex.Message}");
+                    }
                 }
                 else
                 {
