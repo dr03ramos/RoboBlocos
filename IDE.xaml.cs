@@ -475,20 +475,74 @@ namespace RoboBlocos
         {
             try
             {
-                // Log 1: Tentando conectar ao robô
-                string robotModel = CurrentProject.RobotSettings.Model;
-                string serialPort = CurrentProject.ConnectionSettings.SerialPort;
-                AddLog($"Tentando conectar ao robô... {robotModel} na porta {serialPort}...", LogSeverity.Informational, LogCategory.Obrigatórios);
+                // Obter o código NQC gerado do Blockly
+                var generatedCode = await GetGeneratedCodeFromJavaScriptAsync();
 
-                // Simular tentativa de conexão (aguardar um momento)
-                await Task.Delay(1000);
+                if (string.IsNullOrWhiteSpace(generatedCode))
+                {
+                    // Apenas log, sem diálogo
+                    AddLog("Código vazio - adicione alguns blocos ao seu programa primeiro.", LogSeverity.Error, LogCategory.Obrigatórios);
+                    return;
+                }
 
-                // Log 2: Não foi possível conectar
-                AddLog("Não foi possível conectar ao robô. Tente colocá-lo mais perto do sensor.", LogSeverity.Error, LogCategory.Obrigatórios);
+                // Desabilitar o botão durante o envio para evitar cliques múltiplos
+                SendToRobotButton.IsEnabled = false;
+
+                try
+                {
+                    // Criar instância do serviço de compilação
+                    var compilerService = new NqcCompilerService();
+
+                    // Criar callback de progresso para atualizar logs
+                    var progress = new Progress<CompilationProgress>(progressReport =>
+                    {
+                        // Determinar severidade do log baseado no estágio
+                        LogSeverity severity = progressReport.Stage switch
+                        {
+                            CompilationStage.Success => LogSeverity.Success,
+                            CompilationStage.Failed => LogSeverity.Error,
+                            _ => LogSeverity.Informational
+                        };
+
+                        // Adicionar log
+                        AddLog(progressReport.Message, severity, LogCategory.Obrigatórios);
+                    });
+
+                    // Compilar e enviar para o robô
+                    var result = await compilerService.CompileAndDownloadAsync(
+                        generatedCode,
+                        CurrentProject,
+                        progress);
+
+                    // Adicionar log final de sucesso ou erro (não mostrar diálogos)
+                    if (result.Success)
+                    {
+                        // Log de sucesso já foi adicionado pelo callback
+                        System.Diagnostics.Debug.WriteLine("[IDE] Envio concluído com sucesso");
+                      }
+                    else
+                    {
+                        // Log de erro já foi adicionado pelo callback
+                        System.Diagnostics.Debug.WriteLine($"[IDE] Envio falhou: {result.Message}");
+                        
+                        // Se for erro crítico de configuração, adicionar log extra
+                        if (result.ExitCode == -1 && (result.Message.Contains("não encontrado") || result.Message.Contains("Código vazio")))
+                        {
+                            AddLog($"Erro crítico: {result.Message}", LogSeverity.Error, LogCategory.Obrigatórios);
+                        }
+                    }
+                }
+                finally
+                {
+                    // Reabilitar o botão
+                    SendToRobotButton.IsEnabled = true;
+                }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Erro ao enviar para o robô: {ex.Message}");
+                SendToRobotButton.IsEnabled = true;
+                System.Diagnostics.Debug.WriteLine($"[IDE] Exceção: {ex.Message}");
+                AddLog($"Erro inesperado: {ex.Message}", LogSeverity.Error, LogCategory.Obrigatórios);
             }
         }
 
@@ -528,7 +582,7 @@ namespace RoboBlocos
                     if (result.Contains("success"))
                     {
                         System.Diagnostics.Debug.WriteLine("[LoadWorkspace] Workspace carregado com sucesso!");
-                    }
+                      }
                     else
                     {
                         System.Diagnostics.Debug.WriteLine($"[LoadWorkspace] Falha ao carregar: {result}");
