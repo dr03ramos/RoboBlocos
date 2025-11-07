@@ -151,7 +151,7 @@
          * Atualiza a toolbox dinamicamente com base nos blocos no workspace
          */
         function updateDynamicToolbox() {
-            console.log('[updateDynamicToolbox] Atualizando toolbox...');
+            console.log('[updateDynamicToolbox] Iniciando atualização da toolbox...');
             
             // Coletar todas as tarefas nomeadas
             var taskBlocks = workspace.getBlocksByType('nqc_tarefa_nomeada', false);
@@ -183,15 +183,11 @@
                 taskNameIndex++;
             }
             
-            console.log('[updateDynamicToolbox] Tarefas encontradas:', tasks);
-            console.log('[updateDynamicToolbox] Variáveis encontradas:', variables);
-            console.log('[updateDynamicToolbox] Nome sugerido para nova tarefa:', suggestedTaskName);
-            
             // Criar XML da toolbox dinamicamente
             var toolboxXml = '<xml id="toolbox">';
 
             // Categoria Motores
-            toolboxXml += '<category name="Motores" colour="%{BKY_LISTS_HUE}">';
+            toolboxXml += '<category name="Motores" colour="210">';
             toolboxXml += '<block type="nqc_ligar_motor"></block>';
             toolboxXml += '<block type="nqc_ligar_motor_com_potencia">';
             toolboxXml += '<value name="POTENCIA"><shadow type="nqc_percentual"><field name="NUM">100</field></shadow></value>';
@@ -203,9 +199,9 @@
             toolboxXml += '<block type="nqc_desligar_motor"></block>';
             toolboxXml += '<block type="nqc_toca_som"></block>';
             toolboxXml += '</category>';
-            
+
             // Categoria Sensores
-            toolboxXml += '<category name="Sensores" colour="%{BKY_TEXTS_HUE}">';
+            toolboxXml += '<category name="Sensores" colour="140">';
             toolboxXml += '<block type="nqc_define_sensor_toque"></block>';
             toolboxXml += '<block type="nqc_define_sensor_luz"></block>';
             toolboxXml += '<block type="nqc_define_sensor_rotacao"></block>';
@@ -215,9 +211,9 @@
             toolboxXml += '<block type="nqc_valor_sensor_rotacao"></block>';
             toolboxXml += '<block type="nqc_valor_sensor_temperatura"></block>';
             toolboxXml += '</category>';
-            
+
             // Categoria Controles
-            toolboxXml += '<category name="Controles" colour="%{BKY_LOOPS_HUE}">';
+            toolboxXml += '<category name="Controles" colour="90">';
             toolboxXml += '<block type="nqc_espera_segundos">';
             toolboxXml += '<value name="SECONDS"><shadow type="nqc_numero"><field name="NUM">1</field></shadow></value>';
             toolboxXml += '</block>';
@@ -228,9 +224,9 @@
             toolboxXml += '<block type="nqc_repita_infinitamente"></block>';
             toolboxXml += '<block type="nqc_repita_ate_que"></block>';
             toolboxXml += '</category>';
-            
+
             // Categoria Variáveis (DINÂMICA)
-            toolboxXml += '<category name="Variáveis" colour="%{BKY_VARIABLES_HUE}">';
+            toolboxXml += '<category name="Variáveis" colour="0">';
             toolboxXml += '<block type="nqc_variavel_recebe"></block>';
             if (variables.length == 0) {
                 toolboxXml += '<block type="nqc_valor_variavel"><field name="VAR">x</field></block>';
@@ -243,33 +239,39 @@
                 }
             }
             toolboxXml += '</category>';
-            
+
             // Categoria Matemática
-            toolboxXml += '<category name="Matemática" colour="%{BKY_MATH_HUE}">';
+            toolboxXml += '<category name="Matemática" colour="330">';
             toolboxXml += '<block type="nqc_numero"><field name="NUM">0</field></block>';
-            toolboxXml += '<block type="nqc_operacao_matematica"></block>';
+            toolboxXml += '<block type="nqc_operacao_matematica">';
+            toolboxXml += '<value name="A"><shadow type="nqc_numero"><field name="NUM">0</field></shadow></value>';
+            toolboxXml += '<value name="B"><shadow type="nqc_numero"><field name="NUM">0</field></shadow></value>';
+            toolboxXml += '</block>';
             toolboxXml += '</category>';
-            
+
             // Categoria Lógica
-            toolboxXml += '<category name="Lógica" colour="%{BKY_LOGIC_HUE}">';
-            toolboxXml += '<block type="nqc_comparacao"></block>';
+            toolboxXml += '<category name="Lógica" colour="290">';
+            toolboxXml += '<block type="nqc_comparacao">';
+            toolboxXml += '<value name="A"><shadow type="nqc_numero"><field name="NUM">0</field></shadow></value>';
+            toolboxXml += '<value name="B"><shadow type="nqc_numero"><field name="NUM">0</field></shadow></value>';
+            toolboxXml += '</block>';
             toolboxXml += '<block type="nqc_operacao_logica"></block>';
             toolboxXml += '<block type="nqc_contrario"></block>';
             toolboxXml += '<block type="nqc_booleano"></block>';
             toolboxXml += '</category>';
-            
+
             // Categoria Condicionais
-            toolboxXml += '<category name="Condicionais" colour="%{BKY_COLOUR_HUE}">';
+            toolboxXml += '<category name="Condicionais" colour="260">';
             toolboxXml += '<block type="nqc_se_faca"></block>';
             toolboxXml += '<block type="nqc_se_faca_senao"></block>';
             toolboxXml += '</category>';
-            
+
             // Categoria Tarefas (DINÂMICA)
-            toolboxXml += '<category name="Tarefas" colour="%{BKY_PROCEDURES_HUE}">';
+            toolboxXml += '<category name="Tarefas" colour="170">';
             toolboxXml += '<block type="nqc_tarefa_principal"></block>';
             // Bloco "tarefa nomeada" com nome sugerido único
             toolboxXml += '<block type="nqc_tarefa_nomeada"><field name="NOME">' + suggestedTaskName + '</field></block>';
-            
+
             if (tasks.length == 0) {
                 // Se não há tarefas, mostrar bloco genérico
                 toolboxXml += '<block type="nqc_executar_tarefa"><field name="NOME">minhaTarefa</field></block>';

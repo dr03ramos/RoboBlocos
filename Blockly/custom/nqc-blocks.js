@@ -465,7 +465,7 @@ Blockly.Blocks['nqc_percentual'] = {
             .appendField(new Blockly.FieldNumber(50, 0, 100), "NUM")
             .appendField("%");
         this.setOutput(true, "Percent");
-        this.setColour(330);
+        this.setColour(210);
         this.setTooltip("Um valor percentual entre 0 e 100");
     }
 };
@@ -487,6 +487,8 @@ Blockly.Blocks['nqc_operacao_matematica'] = {
         this.setOutput(true, "Number");
         this.setColour(330);
         this.setTooltip("Operação matemática entre dois valores");
+        this.getInput("A").connection.setShadowDom(Blockly.utils.xml.textToDom('<shadow type="nqc_numero"><field name="NUM">0</field></shadow>'));
+        this.getInput("B").connection.setShadowDom(Blockly.utils.xml.textToDom('<shadow type="nqc_numero"><field name="NUM">0</field></shadow>'));
     }
 };
 
@@ -511,6 +513,8 @@ Blockly.Blocks['nqc_comparacao'] = {
         this.setOutput(true, "Boolean");
         this.setColour(290);
         this.setTooltip("Comparação entre dois valores");
+        this.getInput("A").connection.setShadowDom(Blockly.utils.xml.textToDom('<shadow type="nqc_numero"><field name="NUM">0</field></shadow>'));
+        this.getInput("B").connection.setShadowDom(Blockly.utils.xml.textToDom('<shadow type="nqc_numero"><field name="NUM">0</field></shadow>'));
     }
 };
 
@@ -626,11 +630,11 @@ Blockly.Blocks['nqc_tarefa_principal'] = {
             var firstBlock = mainTaskBlocks[0];
             if (this.id !== firstBlock.id) {
                 this.setWarningText('Apenas um bloco de "tarefa principal" é permitido no projeto. Remova este bloco.');
-                this.setEnabled(false);
+                this.disabled = true;
             }
         } else {
             this.setWarningText(null);
-            this.setEnabled(true);
+            this.disabled = false;
         }
     }
 };
@@ -658,6 +662,7 @@ Blockly.Blocks['nqc_tarefa_nomeada'] = {
         var currentName = this.getFieldValue('NOME');
         if (!currentName || currentName.trim() === '') {
             this.setWarningText('O nome da tarefa não pode estar vazio.');
+            this.disabled = true;
             return;
         }
         
@@ -675,11 +680,13 @@ Blockly.Blocks['nqc_tarefa_nomeada'] = {
             }
         }
         
-        // Se houver duplicatas, avisar o usuário
+        // Se houver duplicatas, impedir o uso
         if (duplicates.length > 0) {
             this.setWarningText('Já existe uma tarefa com o nome "' + currentName + '". Escolha um nome diferente.');
+            this.disabled = true;
         } else {
             this.setWarningText(null);
+            this.disabled = false;
         }
     }
 };
