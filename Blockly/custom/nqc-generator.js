@@ -52,11 +52,15 @@
             this.ORDER_ASSIGNMENT = 14;      // = += -= *= /= %= <<= >>= &= ^= |=
             this.ORDER_NONE = 99;            // (...)
 
-            // Sistema customizado de rastreamento de variáveis por escopo
+            // Sistema de rastreamento de variáveis por escopo
             // Necessário porque NQC exige declaração de variáveis locais dentro de cada task
             this.scopeVariables_ = {};
             this.currentScope_ = null;
             this.hasMainTask_ = false;
+
+            // Sistema de rastreamento de variáveis globais
+            this.globalVariables_ = new Set();
+            this.variableUsageByTask_ = {};
         }
 
         /**
@@ -75,10 +79,10 @@
             this.nameDB_.populateVariables(workspace);
             this.nameDB_.populateProcedures(workspace);
 
-            // NÃO usar o sistema padrão de variáveis globais do Blockly
-            // NQC exige variáveis locais dentro de cada task
+            // Analisar escopo de variáveis antes de processar
+            this.analyzeVariableScope(workspace);
 
-            // Resetar o sistema de rastreamento de variáveis por escopo
+            // Inicializa o sistema de rastreamento de variáveis por escopo
             this.scopeVariables_ = {};
             this.currentScope_ = null;
             this.hasMainTask_ = false;
@@ -123,7 +127,16 @@
                 return '';
             }
 
-            const declarations = Array.from(variables).map(varName => `  int ${varName};`).join('\n');
+            // Filtrar variáveis globais - elas serão declaradas no topo do arquivo
+            const localVariables = Array.from(variables).filter(
+                varName => !this.globalVariables_.has(varName)
+            );
+
+            if (localVariables.length === 0) {
+                return '';
+            }
+
+            const declarations = localVariables.map(varName => `  int ${varName};`).join('\n');
             return declarations + '\n\n';
         }
 
@@ -178,6 +191,47 @@
             }
 
             return variables;
+        }
+
+        /**
+         * Analisa todas as tasks no workspace e identifica variáveis compartilhadas
+         * @param {Blockly.Workspace} workspace - Workspace do Blockly
+         */
+        analyzeVariableScope(workspace) {
+            this.globalVariables_.clear();
+            this.variableUsageByTask_ = {};
+            
+            // 1. Coletar todos os blocos de task
+            const mainTasks = workspace.getBlocksByType('nqc_tarefa_principal', false);
+            const namedTasks = workspace.getBlocksByType('nqc_tarefa_nomeada', false);
+            const allTasks = [...mainTasks, ...namedTasks];
+            
+            // 2. Para cada task, coletar suas variáveis
+            allTasks.forEach(taskBlock => {
+                const taskName = taskBlock.type === 'nqc_tarefa_principal' 
+                    ? 'main' 
+                    : taskBlock.getFieldValue('NOME');
+                
+                const statements = taskBlock.getInputTargetBlock('STATEMENTS');
+                const variables = this.collectVariablesInBlock(statements);
+                
+                // 3. Registrar uso de cada variável
+                variables.forEach(varName => {
+                    if (!this.variableUsageByTask_[varName]) {
+                        this.variableUsageByTask_[varName] = [];
+                    }
+                    if (!this.variableUsageByTask_[varName].includes(taskName)) {
+                        this.variableUsageByTask_[varName].push(taskName);
+                    }
+                });
+            });
+            
+            // 4. Identificar variáveis usadas em múltiplas tasks
+            for (const [varName, tasks] of Object.entries(this.variableUsageByTask_)) {
+                if (tasks.length > 1) {
+                    this.globalVariables_.add(varName);
+                }
+            }
         }
 
         /**
@@ -272,7 +326,18 @@
                 taskCode += '\ntask main()\n{\n}\n';
             }
 
-            return this.finish(taskCode);
+            // Gerar declarações de variáveis globais
+            let globalDeclarations = '';
+            if (this.globalVariables_.size > 0) {
+                const globalVars = Array.from(this.globalVariables_)
+                    .map(varName => `int ${varName};`)
+                    .join('\n');
+                globalDeclarations = globalVars + '\n\n';
+            }
+
+            // Montar código final com variáveis globais no topo
+            const finalCode = globalDeclarations + taskCode;
+            return this.finish(finalCode);
         }
 
         /**
