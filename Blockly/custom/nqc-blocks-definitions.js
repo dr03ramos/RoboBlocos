@@ -1,3 +1,10 @@
+// ============================================================================
+// Definições de Blocos Customizados NQC
+// ============================================================================
+// Este arquivo contém as definições de interface dos blocos.
+// Os geradores de código estão em nqc-blocks-generators.js
+// ============================================================================
+
 // ============ SISTEMA DE NOMENCLATURA DUAL ============
 
 /**
@@ -19,7 +26,7 @@ const NOMENCLATURAS = {
         'nqc_define_potencia_percent': 'define potência',
         'nqc_define_sentido': 'define sentido',
         'nqc_toca_som': 'toca som',
-        
+
         // SEÇÃO 2: SENSORES
         'nqc_define_sensor_toque': 'define que',
         'nqc_define_sensor_luz': 'define que',
@@ -29,33 +36,33 @@ const NOMENCLATURAS = {
         'nqc_valor_sensor_luz': 'valor do sensor de luz',
         'nqc_valor_sensor_rotacao': 'valor do sensor de rotação',
         'nqc_valor_sensor_temperatura': 'temperatura em °C do sensor',
-        
+
         // SEÇÃO 3: TEMPORIZAÇÃO E LOOPS
         'nqc_espera_segundos': 'espera',
         'nqc_espera_ate_que': 'espere até que',
         'nqc_repita_vezes': 'repita',
         'nqc_repita_infinitamente': 'repita infinitamente',
         'nqc_repita_ate_que': 'repita até que',
-        
+
         // SEÇÃO 4: VARIÁVEIS
         'nqc_variavel_recebe': 'variável',
         'nqc_valor_variavel': 'valor de',
-        
+
         // SEÇÃO 5: MATEMÁTICA
-        'nqc_numero': '', // Sem texto visível
-        'nqc_percentual': '', // Sem texto visível
+        'nqc_numero': '',
+        'nqc_percentual': '',
         'nqc_operacao_matematica': '',
-        
+
         // SEÇÃO 6: LÓGICA
         'nqc_comparacao': '',
         'nqc_operacao_logica': '',
         'nqc_contrario': 'contrário de',
         'nqc_booleano': '',
-        
+
         // SEÇÃO 7: CONDICIONAIS
         'nqc_se_faca': 'se',
         'nqc_se_faca_senao': 'se',
-        
+
         // SEÇÃO 8: TAREFAS
         'nqc_tarefa_principal': 'tarefa principal',
         'nqc_tarefa_nomeada': 'tarefa',
@@ -70,7 +77,7 @@ const NOMENCLATURAS = {
         'nqc_define_potencia_percent': 'SetPower',
         'nqc_define_sentido': 'SetDirection',
         'nqc_toca_som': 'PlaySound',
-        
+
         // SEÇÃO 2: SENSORES
         'nqc_define_sensor_toque': 'SetSensorType (TOUCH)',
         'nqc_define_sensor_luz': 'SetSensorType (LIGHT)',
@@ -80,33 +87,33 @@ const NOMENCLATURAS = {
         'nqc_valor_sensor_luz': 'SENSOR (LIGHT)',
         'nqc_valor_sensor_rotacao': 'SENSOR (ROTATION)',
         'nqc_valor_sensor_temperatura': 'SENSOR (CELSIUS)',
-        
+
         // SEÇÃO 3: TEMPORIZAÇÃO E LOOPS
         'nqc_espera_segundos': 'Wait',
         'nqc_espera_ate_que': 'until',
         'nqc_repita_vezes': 'repeat',
         'nqc_repita_infinitamente': 'while(true)',
         'nqc_repita_ate_que': 'do...until',
-        
+
         // SEÇÃO 4: VARIÁVEIS
         'nqc_variavel_recebe': 'int',
         'nqc_valor_variavel': 'var',
-        
+
         // SEÇÃO 5: MATEMÁTICA
         'nqc_numero': '',
         'nqc_percentual': '',
         'nqc_operacao_matematica': '',
-        
+
         // SEÇÃO 6: LÓGICA
         'nqc_comparacao': '',
         'nqc_operacao_logica': '',
         'nqc_contrario': '!',
         'nqc_booleano': '',
-        
+
         // SEÇÃO 7: CONDICIONAIS
         'nqc_se_faca': 'if',
         'nqc_se_faca_senao': 'if...else',
-        
+
         // SEÇÃO 8: TAREFAS
         'nqc_tarefa_principal': 'task main',
         'nqc_tarefa_nomeada': 'task',
@@ -145,6 +152,50 @@ const SENTIDO_OPTIONS = [
     ["horário", "FWD"],
     ["antihorário", "REV"]
 ];
+
+// ============ FUNÇÃO DE VALIDAÇÃO REUTILIZÁVEL ============
+
+/**
+ * Função reutilizável para validação de blocos de tarefa
+ * @param {Blockly.Block} block - Bloco a ser validado
+ * @param {string} taskType - Tipo da tarefa ('nqc_tarefa_principal' ou 'nqc_tarefa_nomeada')
+ */
+function validateTaskBlock(block, taskType) {
+    if (!block.workspace) return;
+
+    const blocks = block.workspace.getBlocksByType(taskType, false);
+
+    if (taskType === 'nqc_tarefa_principal') {
+        // Validação de tarefa única
+        if (blocks.length > 1 && block.id !== blocks[0].id) {
+            block.setWarningText('Apenas um bloco de "tarefa principal" é permitido no projeto. Remova este bloco.');
+            block.disabled = true;
+        } else {
+            block.setWarningText(null);
+            block.disabled = false;
+        }
+    } else if (taskType === 'nqc_tarefa_nomeada') {
+        // Validação de nome único
+        const currentName = block.getFieldValue('NOME');
+        if (!currentName || currentName.trim() === '') {
+            block.setWarningText('O nome da tarefa não pode estar vazio.');
+            block.disabled = true;
+            return;
+        }
+
+        const duplicates = blocks.filter(b => 
+            b.id !== block.id && b.getFieldValue('NOME') === currentName
+        );
+
+        if (duplicates.length > 0) {
+            block.setWarningText('Já existe uma tarefa com o nome "' + currentName + '". Escolha um nome diferente.');
+            block.disabled = true;
+        } else {
+            block.setWarningText(null);
+            block.disabled = false;
+        }
+    }
+}
 
 // ============ SEÇÃO 1: MOTORES E SONS ============
 
@@ -612,30 +663,9 @@ Blockly.Blocks['nqc_tarefa_principal'] = {
         this.setColour(170);
         this.setTooltip("Tarefa principal do programa (task main)");
     },
-    
-    /**
-     * Verifica se já existe outro bloco de tarefa principal no workspace
-     * @return {boolean} true se já existe, false caso contrário
-     */
+
     onchange: function(event) {
-        if (!this.workspace) {
-            return;
-        }
-        
-        // Contar blocos de tarefa principal no workspace
-        var mainTaskBlocks = this.workspace.getBlocksByType('nqc_tarefa_principal', false);
-        
-        // Se há mais de um bloco de tarefa principal, desabilitar este bloco se não for o primeiro
-        if (mainTaskBlocks.length > 1) {
-            var firstBlock = mainTaskBlocks[0];
-            if (this.id !== firstBlock.id) {
-                this.setWarningText('Apenas um bloco de "tarefa principal" é permitido no projeto. Remova este bloco.');
-                this.disabled = true;
-            }
-        } else {
-            this.setWarningText(null);
-            this.disabled = false;
-        }
+        validateTaskBlock(this, 'nqc_tarefa_principal');
     }
 };
 
@@ -649,45 +679,9 @@ Blockly.Blocks['nqc_tarefa_nomeada'] = {
         this.setColour(170);
         this.setTooltip("Tarefa com nome personalizado");
     },
-    
-    /**
-     * Verifica se já existe outra tarefa com o mesmo nome
-     */
+
     onchange: function(event) {
-        if (!this.workspace) {
-            return;
-        }
-        
-        // Obter o nome da tarefa atual
-        var currentName = this.getFieldValue('NOME');
-        if (!currentName || currentName.trim() === '') {
-            this.setWarningText('O nome da tarefa não pode estar vazio.');
-            this.disabled = true;
-            return;
-        }
-        
-        // Buscar todas as tarefas nomeadas no workspace
-        var taskBlocks = this.workspace.getBlocksByType('nqc_tarefa_nomeada', false);
-        var duplicates = [];
-        
-        for (var i = 0; i < taskBlocks.length; i++) {
-            var block = taskBlocks[i];
-            if (block.id !== this.id) {
-                var taskName = block.getFieldValue('NOME');
-                if (taskName === currentName) {
-                    duplicates.push(block);
-                }
-            }
-        }
-        
-        // Se houver duplicatas, impedir o uso
-        if (duplicates.length > 0) {
-            this.setWarningText('Já existe uma tarefa com o nome "' + currentName + '". Escolha um nome diferente.');
-            this.disabled = true;
-        } else {
-            this.setWarningText(null);
-            this.disabled = false;
-        }
+        validateTaskBlock(this, 'nqc_tarefa_nomeada');
     }
 };
 
@@ -715,287 +709,4 @@ Blockly.Blocks['nqc_interromper_tarefa'] = {
     }
 };
 
-
-// ============ GERADORES DE CÓDIGO NQC ============
-
-// SEÇÃO 1: Motores e Sons
-nqc.nqcGenerator.forBlock['nqc_ligar_motor_com_potencia'] = function (block, generator) {
-    const motor = block.getFieldValue('MOTOR');
-    const sentido = block.getFieldValue('SENTIDO');
-    const potenciaPercent = generator.valueToCode(block, 'POTENCIA', generator.ORDER_NONE) || '50';
-
-    // Converter percentual (0-100) para potência NQC (0-7)
-    const potenciaNQC = `(${potenciaPercent} * 7 / 100)`;
-
-    let code = `SetPower(${motor}, ${potenciaNQC});\n`;
-    code += sentido === 'FWD' ? `OnFwd(${motor});\n` : `OnRev(${motor});\n`;
-    return code;
-};
-
-nqc.nqcGenerator.forBlock['nqc_ligar_motor'] = function (block, generator) {
-    const motor = block.getFieldValue('MOTOR');
-    const sentido = block.getFieldValue('SENTIDO');
-    return sentido === 'FWD' ? `OnFwd(${motor});\n` : `OnRev(${motor});\n`;
-};
-
-nqc.nqcGenerator.forBlock['nqc_desligar_motor'] = function (block, generator) {
-    const motor = block.getFieldValue('MOTOR');
-    return `Off(${motor});\n`;
-};
-
-nqc.nqcGenerator.forBlock['nqc_define_potencia_percent'] = function (block, generator) {
-    const motor = block.getFieldValue('MOTOR');
-    const potenciaPercent = generator.valueToCode(block, 'POTENCIA', generator.ORDER_NONE) || '50';
-    const potenciaNQC = `(${potenciaPercent} * 7 / 100)`;
-    return `SetPower(${motor}, ${potenciaNQC});\n`;
-};
-
-nqc.nqcGenerator.forBlock['nqc_define_sentido'] = function (block, generator) {
-    const motor = block.getFieldValue('MOTOR');
-    const sentido = block.getFieldValue('SENTIDO');
-    return sentido === 'FWD' ? `SetDirection(${motor}, OUT_FWD);\n` : `SetDirection(${motor}, OUT_REV);\n`;
-};
-
-nqc.nqcGenerator.forBlock['nqc_toca_som'] = function (block, generator) {
-    const som = block.getFieldValue('SOM');
-    return `PlaySound(${som});\n`;
-};
-
-// SEÇÃO 2: Sensores
-nqc.nqcGenerator.forBlock['nqc_define_sensor_toque'] = function (block, generator) {
-    const sensor = block.getFieldValue('SENSOR');
-    let code = `SetSensorType(${sensor}, SENSOR_TYPE_TOUCH);\n`;
-    code += `SetSensorMode(${sensor}, SENSOR_MODE_BOOL);\n`;
-    return code;
-};
-
-nqc.nqcGenerator.forBlock['nqc_define_sensor_luz'] = function (block, generator) {
-    const sensor = block.getFieldValue('SENSOR');
-    let code = `SetSensorType(${sensor}, SENSOR_TYPE_LIGHT);\n`;
-    code += `SetSensorMode(${sensor}, SENSOR_MODE_PERCENT);\n`;
-    return code;
-};
-
-nqc.nqcGenerator.forBlock['nqc_define_sensor_rotacao'] = function (block, generator) {
-    const sensor = block.getFieldValue('SENSOR');
-    let code = `SetSensorType(${sensor}, SENSOR_TYPE_ROTATION);\n`;
-    code += `SetSensorMode(${sensor}, SENSOR_MODE_ROTATION);\n`;
-    code += `ClearSensor(${sensor});\n`;
-    return code;
-};
-
-nqc.nqcGenerator.forBlock['nqc_define_sensor_temperatura'] = function (block, generator) {
-    const sensor = block.getFieldValue('SENSOR');
-    let code = `SetSensorType(${sensor}, SENSOR_TYPE_TEMPERATURE);\n`;
-    code += `SetSensorMode(${sensor}, SENSOR_MODE_CELSIUS);\n`;
-    return code;
-};
-
-nqc.nqcGenerator.forBlock['nqc_valor_sensor_toque'] = function (block, generator) {
-    const sensor = block.getFieldValue('SENSOR');
-    return [sensor, generator.ORDER_ATOMIC];
-};
-
-nqc.nqcGenerator.forBlock['nqc_valor_sensor_luz'] = function (block, generator) {
-    const sensor = block.getFieldValue('SENSOR');
-    return [sensor, generator.ORDER_ATOMIC];
-};
-
-nqc.nqcGenerator.forBlock['nqc_valor_sensor_rotacao'] = function (block, generator) {
-    const sensor = block.getFieldValue('SENSOR');
-    return [sensor, generator.ORDER_ATOMIC];
-};
-
-nqc.nqcGenerator.forBlock['nqc_valor_sensor_temperatura'] = function (block, generator) {
-    const sensor = block.getFieldValue('SENSOR');
-    return [sensor, generator.ORDER_ATOMIC];
-};
-
-// SEÇÃO 3: Temporização e Loops
-nqc.nqcGenerator.forBlock['nqc_espera_segundos'] = function (block, generator) {
-    const seconds = generator.valueToCode(block, 'SECONDS', generator.ORDER_NONE) || '1';
-    // Multiplicar por 100 para converter segundos em ticks
-    return `Wait(${seconds} * 100);\n`;
-};
-
-nqc.nqcGenerator.forBlock['nqc_espera_ate_que'] = function (block, generator) {
-    const condicao = generator.valueToCode(block, 'CONDICAO', generator.ORDER_NONE) || 'true';
-    return `until(${condicao});\n`;
-};
-
-nqc.nqcGenerator.forBlock['nqc_repita_vezes'] = function (block, generator) {
-    const times = generator.valueToCode(block, 'TIMES', generator.ORDER_NONE) || '10';
-    const branch = generator.statementToCode(block, 'DO');
-    return `repeat(${times}) {\n${branch}}\n`;
-};
-
-nqc.nqcGenerator.forBlock['nqc_repita_infinitamente'] = function (block, generator) {
-    const branch = generator.statementToCode(block, 'DO');
-    return `while(true) {\n${branch}}\n`;
-};
-
-nqc.nqcGenerator.forBlock['nqc_repita_ate_que'] = function (block, generator) {
-    const condicao = generator.valueToCode(block, 'CONDICAO', generator.ORDER_NONE) || 'false';
-    const branch = generator.statementToCode(block, 'DO');
-    return `do {\n${branch}} while (!(${condicao}));\n`;
-};
-
-// SEÇÃO 4: Variáveis
-nqc.nqcGenerator.forBlock['nqc_variavel_recebe'] = function (block, generator) {
-    const varName = block.getFieldValue('VAR');
-    const valor = generator.valueToCode(block, 'VALOR', generator.ORDER_ASSIGNMENT) || '0';
-    generator.registerVariableInScope(varName);
-    return `${varName} = ${valor};\n`;
-};
-
-nqc.nqcGenerator.forBlock['nqc_valor_variavel'] = function (block, generator) {
-    const varName = block.getFieldValue('VAR');
-    generator.registerVariableInScope(varName);
-    return [varName, generator.ORDER_ATOMIC];
-};
-
-// SEÇÃO 5: Matemática
-nqc.nqcGenerator.forBlock['nqc_numero'] = function (block, generator) {
-    const num = block.getFieldValue('NUM');
-    return [num, generator.ORDER_ATOMIC];
-};
-
-nqc.nqcGenerator.forBlock['nqc_percentual'] = function (block, generator) {
-    const num = block.getFieldValue('NUM');
-    return [num, generator.ORDER_ATOMIC];
-};
-
-nqc.nqcGenerator.forBlock['nqc_operacao_matematica'] = function (block, generator) {
-    const OPERATORS = {
-        'ADD': [' + ', generator.ORDER_ADDITIVE],
-        'MINUS': [' - ', generator.ORDER_ADDITIVE],
-        'MULTIPLY': [' * ', generator.ORDER_MULTIPLICATIVE],
-        'DIVIDE': [' / ', generator.ORDER_MULTIPLICATIVE]
-    };
-    const tuple = OPERATORS[block.getFieldValue('OP')];
-    const operator = tuple[0];
-    const order = tuple[1];
-    const argument0 = generator.valueToCode(block, 'A', order) || '0';
-    const argument1 = generator.valueToCode(block, 'B', order) || '0';
-    const code = argument0 + operator + ' ' + argument1;
-    return [code, order];
-};
-
-// SEÇÃO 6: Lógica
-nqc.nqcGenerator.forBlock['nqc_comparacao'] = function (block, generator) {
-    const OPERATORS = {
-        'EQ': '==',
-        'NEQ': '!=',
-        'LT': '<',
-        'LTE': '<=',
-        'GT': '>',
-        'GTE': '>='
-    };
-    const operator = OPERATORS[block.getFieldValue('OP')];
-    const order = generator.ORDER_RELATIONAL;
-    const argument0 = generator.valueToCode(block, 'A', order) || '0';
-    const argument1 = generator.valueToCode(block, 'B', order) || '0';
-    const code = argument0 + ' ' + operator + ' ' + argument1;
-    return [code, order];
-};
-
-nqc.nqcGenerator.forBlock['nqc_operacao_logica'] = function (block, generator) {
-    const operator = (block.getFieldValue('OP') === 'AND') ? '&&' : '||';
-    const order = (operator === '&&') ? generator.ORDER_LOGICAL_AND : generator.ORDER_LOGICAL_OR;
-    const argument0 = generator.valueToCode(block, 'A', order) || 'false';
-    const argument1 = generator.valueToCode(block, 'B', order) || 'false';
-    const code = argument0 + ' ' + operator + ' ' + argument1;
-    return [code, order];
-};
-
-nqc.nqcGenerator.forBlock['nqc_contrario'] = function (block, generator) {
-    const argument0 = generator.valueToCode(block, 'BOOL', generator.ORDER_UNARY_PREFIX) || 'true';
-    const code = '!' + argument0;
-    return [code, generator.ORDER_UNARY_PREFIX];
-};
-
-nqc.nqcGenerator.forBlock['nqc_booleano'] = function (block, generator) {
-    const code = (block.getFieldValue('BOOL') === 'TRUE') ? 'true' : 'false';
-    return [code, generator.ORDER_ATOMIC];
-};
-
-// SEÇÃO 7: Condicionais
-nqc.nqcGenerator.forBlock['nqc_se_faca'] = function (block, generator) {
-    const condicao = generator.valueToCode(block, 'CONDICAO', generator.ORDER_NONE) || 'false';
-    const branch = generator.statementToCode(block, 'DO');
-    return `if (${condicao}) {\n${branch}}\n`;
-};
-
-nqc.nqcGenerator.forBlock['nqc_se_faca_senao'] = function (block, generator) {
-    const condicao = generator.valueToCode(block, 'CONDICAO', generator.ORDER_NONE) || 'false';
-    const branchDo = generator.statementToCode(block, 'DO');
-    const branchElse = generator.statementToCode(block, 'ELSE');
-    return `if (${condicao}) {\n${branchDo}} else {\n${branchElse}}\n`;
-};
-
-// SEÇÃO 8: Tarefas
-nqc.nqcGenerator.forBlock['nqc_tarefa_principal'] = function (block, generator) {
-    const scopeId = 'task_main';
-    
-    // Marcar que task main foi encontrada
-    generator.hasMainTask_ = true;
-    
-    // Iniciar rastreamento de escopo
-    generator.startScope(scopeId);
-    
-    // Coletar todas as variáveis usadas no bloco
-    const statements_block = block.getInputTargetBlock('STATEMENTS');
-    if (statements_block) {
-        generator.collectVariablesInBlock(statements_block);
-    }
-    
-    // Gerar código das instruções
-    const statements = generator.statementToCode(block, 'STATEMENTS');
-    
-    // Obter declarações de variáveis
-    const varDeclarations = generator.getVariableDeclarations(scopeId);
-    
-    // Finalizar escopo
-    generator.endScope();
-    
-    // Montar código da tarefa com declarações no topo
-    return `task main()\n{\n${varDeclarations}${statements}}\n`;
-};
-
-nqc.nqcGenerator.forBlock['nqc_tarefa_nomeada'] = function (block, generator) {
-    const nome = block.getFieldValue('NOME') || 'minhaTarefa';
-    const scopeId = 'task_' + nome;
-    
-    // Iniciar rastreamento de escopo
-    generator.startScope(scopeId);
-    
-    // Coletar todas as variáveis usadas no bloco
-    const statements_block = block.getInputTargetBlock('STATEMENTS');
-    if (statements_block) {
-        generator.collectVariablesInBlock(statements_block);
-    }
-    
-    // Gerar código das instruções
-    const statements = generator.statementToCode(block, 'STATEMENTS');
-    
-    // Obter declarações de variáveis
-    const varDeclarations = generator.getVariableDeclarations(scopeId);
-    
-    // Finalizar escopo
-    generator.endScope();
-    
-    // Montar código da tarefa com declarações no topo
-    return `task ${nome}()\n{\n${varDeclarations}${statements}}\n`;
-};
-
-nqc.nqcGenerator.forBlock['nqc_executar_tarefa'] = function (block, generator) {
-    const nome = block.getFieldValue('NOME') || 'minhaTarefa';
-    return `start ${nome};\n`;
-};
-
-nqc.nqcGenerator.forBlock['nqc_interromper_tarefa'] = function (block, generator) {
-    const nome = block.getFieldValue('NOME') || 'minhaTarefa';
-    return `stop ${nome};\n`;
-};
-
-console.log('[NQC-BLOCKS] Blocos e geradores NQC carregados');
+console.log('[NQC-BLOCKS-DEFINITIONS] Definições de blocos NQC carregadas');

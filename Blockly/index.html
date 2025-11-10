@@ -3,9 +3,20 @@
 <head>
     <meta charset="utf-8">
     <title>RoboBlocos - Visual Programming</title>
+
+    <!-- Bibliotecas Blockly -->
     <script src="lib/blockly_compressed.js"></script>
     <script src="lib/blocks_compressed.js"></script>
+
+    <!-- 1. PRIMEIRO: Gerador base (classe NqcGenerator) -->
     <script src="custom/nqc-generator.js"></script>
+
+    <!-- 2. SEGUNDO: Definições de blocos -->
+    <script src="custom/nqc-blocks-definitions.js"></script>
+
+    <!-- 3. TERCEIRO: Geradores de blocos customizados -->
+    <script src="custom/nqc-blocks-generators.js"></script>
+
     <style>
         body {
             background-color: #fff;
@@ -31,7 +42,6 @@
         </category>
     </xml>
 
-    <script src="custom/nqc-blocks.js"></script>
     <script>
         /**
          * Altera a nomenclatura dos blocos entre 'iniciante' e 'tecnico'
@@ -39,40 +49,40 @@
          */
         function alterarNomenclatura(modo) {
             console.log('[alterarNomenclatura] Alterando para:', modo);
-            
+
             // Validar modo
             if (modo !== 'iniciante' && modo !== 'tecnico' && modo !== 'técnico') {
                 console.error('[alterarNomenclatura] Modo inválido:', modo);
                 return;
             }
-            
+
             // Normalizar "técnico" para "tecnico" (sem acento)
             if (modo === 'técnico') {
                 modo = 'tecnico';
             }
-            
+
             // Atualizar variável global
             nomenclaturaAtual = modo;
-            
+
             // 1. Atualizar blocos no workspace
             var todosOsBlocos = workspace.getAllBlocks(false);
             console.log('[alterarNomenclatura] Atualizando', todosOsBlocos.length, 'blocos');
-            
+
             todosOsBlocos.forEach(function(block) {
                 atualizarTextosBloco(block);
             });
-            
+
             // 2. Forçar re-render de todos os blocos
             workspace.getAllBlocks(false).forEach(function(block) {
                 block.render();
             });
-            
+
             // 3. Atualizar toolbox
             updateDynamicToolbox();
-            
+
             console.log('[alterarNomenclatura] Concluído');
         }
-        
+
         /**
          * Atualiza os textos de um bloco específico baseado na nomenclatura atual
          * @param {Blockly.Block} block - Bloco a ser atualizado
@@ -81,9 +91,9 @@
             if (!block || !block.type) {
                 return;
             }
-            
+
             var blockType = block.type;
-            
+
             // Lista de blocos que precisam ser atualizados
             var blocksToUpdate = [
                 'nqc_ligar_motor_com_potencia',
@@ -115,28 +125,28 @@
                 'nqc_executar_tarefa',
                 'nqc_interromper_tarefa'
             ];
-            
+
             // Se o bloco não está na lista de blocos a serem atualizados, ignorar
             if (blocksToUpdate.indexOf(blockType) === -1) {
                 return;
             }
-            
+
             // Obter novo texto baseado na nomenclatura atual
             var novoTexto = getTextoBloco(blockType);
-            
+
             // Se não há texto para este bloco, ignorar
             if (!novoTexto) {
                 return;
             }
-            
+
             // Percorrer todos os inputs do bloco
             for (var i = 0; i < block.inputList.length; i++) {
                 var input = block.inputList[i];
-                
+
                 // Percorrer todos os fields do input
                 for (var j = 0; j < input.fieldRow.length; j++) {
                     var field = input.fieldRow[j];
-                    
+
                     // Se for um campo de texto (label) e for o primeiro do primeiro input
                     if (field instanceof Blockly.FieldLabel && i === 0 && j === 0) {
                         // Atualizar apenas o primeiro label (título do bloco)
@@ -152,7 +162,7 @@
          */
         function updateDynamicToolbox() {
             console.log('[updateDynamicToolbox] Iniciando atualização da toolbox...');
-            
+
             // Coletar todas as tarefas nomeadas
             var taskBlocks = workspace.getBlocksByType('nqc_tarefa_nomeada', false);
             var tasks = [];
@@ -162,7 +172,7 @@
                     tasks.push(taskName);
                 }
             }
-            
+
             // Coletar todas as variáveis declaradas
             var varBlocks = workspace.getBlocksByType('nqc_variavel_recebe', false);
             var variables = [];
@@ -174,7 +184,7 @@
                     variableSet[varName] = true;
                 }
             }
-            
+
             // Gerar um nome único para nova tarefa (evitar duplicação)
             var suggestedTaskName = 'minhaTarefa';
             var taskNameIndex = 1;
@@ -182,7 +192,7 @@
                 suggestedTaskName = 'minhaTarefa' + taskNameIndex;
                 taskNameIndex++;
             }
-            
+
             // Criar XML da toolbox dinamicamente
             var toolboxXml = '<xml id="toolbox">';
 
@@ -288,7 +298,7 @@
                 }
             }
             toolboxXml += '</category>';
-            
+
             toolboxXml += '</xml>';
 
             Blockly.utils.colour.setHsvSaturation(0.6);
@@ -297,7 +307,7 @@
             // Atualizar a toolbox
             var toolboxDom = Blockly.utils.xml.textToDom(toolboxXml);
             workspace.updateToolbox(toolboxDom);
-            
+
             console.log('[updateDynamicToolbox] Toolbox atualizada com sucesso');
         }
 
@@ -337,7 +347,7 @@
         // Gerar código NQC a partir dos blocos
         function generateCode() {
             console.log('[generateCode] Iniciando geração de código NQC');
-            
+
             if (!nqc || !nqc.nqcGenerator) {
                 console.error('[generateCode] NQC generator não disponível');
                 return '';
@@ -385,17 +395,17 @@
 
                 console.log('[workspace.addChangeListener] Gerando código e notificando C#...');
                 generateCode();
-                
+
                 // Atualizar toolbox com debounce (evitar múltiplas atualizações seguidas)
                 if (event.type === Blockly.Events.BLOCK_CHANGE ||
                     event.type === Blockly.Events.BLOCK_CREATE ||
                     event.type === Blockly.Events.BLOCK_DELETE) {
-                    
+
                     // Cancelar timeout anterior se existir
                     if (toolboxUpdateTimeout) {
                         clearTimeout(toolboxUpdateTimeout);
                     }
-                    
+
                     // Agendar atualização da toolbox após 500ms
                     toolboxUpdateTimeout = setTimeout(function() {
                         updateDynamicToolbox();
@@ -429,7 +439,7 @@
 
                 // Reabilitar eventos
                 Blockly.Events.enable();
-                
+
                 // Atualizar toolbox após carregar workspace
                 updateDynamicToolbox();
 
