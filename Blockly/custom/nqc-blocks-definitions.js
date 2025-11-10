@@ -32,7 +32,7 @@ const NOMENCLATURAS = {
         'nqc_define_sensor_luz': 'define que',
         'nqc_define_sensor_rotacao': 'define que',
         'nqc_define_sensor_temperatura': 'define que',
-        'nqc_valor_sensor_toque': 'valor do sensor de toque',
+        'nqc_valor_sensor_toque': 'sensor de toque',
         'nqc_valor_sensor_luz': 'valor do sensor de luz',
         'nqc_valor_sensor_rotacao': 'valor do sensor de rotação',
         'nqc_valor_sensor_temperatura': 'temperatura em °C do sensor',
@@ -355,7 +355,8 @@ Blockly.Blocks['nqc_valor_sensor_toque'] = {
     init: function () {
         this.appendDummyInput()
             .appendField(getTextoBloco('nqc_valor_sensor_toque'))
-            .appendField(new Blockly.FieldDropdown(SENSOR_OPTIONS), "SENSOR");
+            .appendField(new Blockly.FieldDropdown(SENSOR_OPTIONS), "SENSOR")
+            .appendField("pressionado");
         this.setOutput(true, "Boolean");
         this.setColour(140);
         this.setTooltip("Retorna o valor do sensor de toque (verdadeiro se pressionado)");
