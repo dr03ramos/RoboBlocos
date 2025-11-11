@@ -54,8 +54,8 @@
                                   VerticalAlignment="Center"
                                   SelectionChanged="NomenclatureSelectorBar_SelectionChanged">
                 <controls:SelectorBarItem x:Name="SelectorBarItemIniciante" 
-                                          Text="Iniciante" 
-                                          ToolTipService.ToolTip="Nomenclatura voltada a iniciantes"
+                                          Text="Estudante" 
+                                          ToolTipService.ToolTip="Nomenclatura voltada a estudantes"
                                           IsSelected="True">
                     <controls:SelectorBarItem.Icon>
                         <FontIcon Glyph="&#xE77B;" />
@@ -63,7 +63,7 @@
                 </controls:SelectorBarItem>
                 <controls:SelectorBarItem x:Name="SelectorBarItemTecnico" 
                                           Text="Técnico" 
-                                          ToolTipService.ToolTip="Nomenclatura voltada a técnicos">
+                                          ToolTipService.ToolTip="Nomenclatura voltada a professores e técnicos">
                     <controls:SelectorBarItem.Icon>
                         <FontIcon Glyph="&#xE7F8;" />
                     </controls:SelectorBarItem.Icon>
